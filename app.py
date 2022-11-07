@@ -2,7 +2,8 @@ from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import filedialog
 from imagehandler import *
-
+import time as t
+ 
 # ========= GLOBAL VARIABLES =========
 IMG_PLACEHOLDER = "assets/img_placeholder.png"
 
@@ -24,6 +25,24 @@ def selectTest():
     inputImage_path = filedialog.askopenfilename(initialdir="./", title="Select Test Image", 
     filetypes=(("png/jpeg", "*.png, *.jpeg, *.jpg"), ("all files", "*.*")))
     updateInputImage()
+
+def runFaceRecog():
+    # global closestResult_path
+    # closestResult_path = FindClosestImage(inputImage_path, dataset_path)
+    # updateInputImage()
+    global actualExecTimeLabel
+    start = t.time()
+    bufferFunction(5)
+    end = t.time()
+    elapsed = end - start
+    if (elapsed < 10):
+        actualExecTimeLabel.config(text="0{:.2f}".format(elapsed))
+    else:
+        actualExecTimeLabel.config(text="{:.2f}".format(elapsed))
+        
+
+def bufferFunction(sec):
+    t.sleep(sec)
 
 # ========= FUNCTIONS =========
 # --* Update Input Image *-- #
@@ -119,7 +138,7 @@ spacingLabel = Label(inputFrame, text = "", bg = "white")
 spacingLabel.pack(fill = X, pady = 10)
 
 # Result
-runButton = Button(inputFrame, text = "Run", font = ("Segoe UI", 16), bg = "white", fg = "black")
+runButton = Button(inputFrame, text = "Run", font = ("Segoe UI", 16), bg = "white", fg = "black", command=runFaceRecog)
 runButton.pack(pady = 5, anchor = W)
 
 resultLabel = Label(inputFrame, text = "Result", font = ("Segoe UI", 16), bg = "white", fg = "black", anchor = W)
