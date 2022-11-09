@@ -3,6 +3,9 @@ from tkinter import *
 from PIL import Image, ImageTk
 import cv2
 
+# ========= FUNCTIONS =========
+# --* Pop Up Camera *-- #
+
 # Create an instance of TKinter Window or frame
 win = Tk()
 

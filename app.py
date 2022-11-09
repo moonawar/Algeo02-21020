@@ -132,7 +132,7 @@ inputtedDatasetLabel.grid(row = 0, column = 1, padx = 5)
 
 # SPACING
 spacingLabel = Label(inputFrame, text = "", bg = "white")
-spacingLabel.pack(fill = X, pady = 10)
+spacingLabel.pack(fill = X, pady = 0)
 
 # Menginput Data Test
 testLabel = Label(inputFrame, text = "Insert Your Test Image", font = ("Segoe UI", FONT16), bg = "white", fg = "black", anchor = W)
@@ -148,17 +148,26 @@ insertTestBtn.grid(row = 0, column = 0, padx = 5)
 inputtedTestLabel = Label(insertTestFrame, textvariable = TEST_INPUT, font = ("Segoe UI", FONT12), bg = "white", fg = "black", anchor = W)
 inputtedTestLabel.grid(row = 0, column = 1, padx = 5)
 
-useCameraButton = Button(insertTestFrame, text = "Use camera instead?", font = ("Segoe UI", FONT12), bg = "white", fg = "#6974D4", border = 0, highlightthickness = 0, 
+useCameraButton = Button(insertTestFrame, text = "Use camera instead?", font = ("Segoe UI", FONT12, "underline"), bg = "white", fg = "#6974D4", border = 0, highlightthickness = 0, 
                          command = openCamera, cursor="hand2")
 useCameraButton.grid(row = 1, column = 0, pady=5)
 
 # SPACING
 spacingLabel = Label(inputFrame, text = "", bg = "white")
-spacingLabel.pack(fill = X, pady = 10)
+spacingLabel.pack(pady = 0)
 
 # Result
-runButton = Button(inputFrame, text = "Run", font = ("Segoe UI", FONT16), bg = "white", fg = "black", command=runFaceRecog)
-runButton.pack(pady = 5, anchor = W)
+runButtonImg = PhotoImage(file = "assets/run_btn.png")
+
+runTestFrame = Frame(inputFrame, bg = "white")
+runTestFrame.pack(pady = 5, fill=X)
+
+runLabel = Label(runTestFrame, text = "Run Test", font = ("Segoe UI", FONT16, "bold"), bg = "white", fg = "black", anchor = W)
+runLabel.grid(row = 0, column = 0)
+
+runButton = Button(runTestFrame, font = ("Segoe UI", FONT16), bg = "white", border = 0, highlightthickness = 0, image = runButtonImg,
+                   command = runFaceRecog, cursor = "hand2")
+runButton.grid(row = 0, column = 1, padx = 20)
 
 resultLabel = Label(inputFrame, text = "Result", font = ("Segoe UI", FONT16), bg = "white", fg = "black", anchor = W)
 resultLabel.pack(fill = X, pady = 4)
