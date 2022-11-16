@@ -3,10 +3,8 @@ from PIL import ImageTk, Image
 from tkinter import filedialog
 
 # -- Global Variables -- #
-IMG_PLACEHOLDER = "assets/img_placeholder.png"
-
-inputImage_path = IMG_PLACEHOLDER
-closestResult_path = IMG_PLACEHOLDER
+inputImage_path = None
+closestResult_path = None
 
 root = Tk()
 
@@ -20,12 +18,12 @@ FONT28 = min(int(28 * RESOLUTION_FACTOR), 28)
 FONT20 = min(int(20 * RESOLUTION_FACTOR), 20)
 FONT16 = min(int(16 * RESOLUTION_FACTOR), 16)
 
-# -- Window Configuration -- #
+# --% Window Configuration %-- #
 root.title("Face Recognition App : Ei")
 root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
 root.resizable(False, False)
 
-# -- Title Frame -- #
+# --% Title Frame %-- #
 titleFrame = Frame(root, bg = "#07111F")
 titleFrame.place(relheight = 0.12, relwidth = 1)
 
@@ -39,7 +37,7 @@ iconCanvas.place(relx = 0.92, rely = 0.18)
 icon = ImageTk.PhotoImage(Image.open("assets/icon.png").resize((65, 65)))
 iconCanvas.create_image(0, 0, anchor = NW, image = icon)
 
-# -- Input Frame -- #
+# --% Input Frame %-- #
 chooseFileImg = ImageTk.PhotoImage(Image.open("assets/choose_file_btn.png"))
 
 # Frame tempat untuk memasukkan input gambar, baik itu dari dataset, maupun untuk gambar uji
@@ -92,5 +90,40 @@ runTestLabel.place(relx = 0.11, rely = 0.55)
 # . Run the Test Button
 runTestBtn = Button(inputCanvas, image = runTestIcon, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A")
 runTestBtn.place(relx = 0.52, rely = 0.55)
+
+# --% Output Frame %-- #
+outputFrame = Frame(root, bg = "#D9D9D9")
+outputFrame.place(relheight = 0.88, relwidth = 0.7, relx = 0.3, rely = 0.12)
+
+# A. Output Test Image
+outputTestImageLabel = Label(outputFrame, text = "Test Image", font = ("Montserrat", int(FONT20 * 0.9), "bold"), fg="black", bg="#D9D9D9", anchor = W)
+outputTestImageLabel.place(relx = 0.07, rely = 0.07)
+
+outputTestImageCanvas = Canvas(outputFrame, width = IMG_SIZE, height = IMG_SIZE, background = "#B8B8B8", highlightthickness = 0)
+outputTestImageCanvas.place(relx = 0.07, rely = 0.15)
+
+# B. Output Closest Result
+outputClosestResultLabel = Label(outputFrame, text = "Closest Result", font = ("Montserrat", int(FONT20 * 0.9), "bold"), fg="black", bg="#D9D9D9", anchor = W)
+outputClosestResultLabel.place(relx = 0.52, rely = 0.07)
+
+outputClosestResultCanvas = Canvas(outputFrame, width = IMG_SIZE, height = IMG_SIZE, background = "#B8B8B8", highlightthickness = 0)
+outputClosestResultCanvas.place(relx = 0.52, rely = 0.15)
+
+# C. Result Summary
+resultSummaryFrame = Frame(outputFrame, bg = "#07111F")
+resultSummaryFrame.place(rely = 0.75, relheight = 0.25, relwidth = 1)
+
+resultSummaryLabel = Label(resultSummaryFrame, text = "Results Summary", font = ("Montserrat", int(FONT16 * 0.9), "bold"), fg="white", bg="#07111F", anchor = W)
+resultSummaryLabel.place(relx = 0.07, rely = 0.2)
+
+resultExecTimeLabel = Label(resultSummaryFrame, text = "Execution Time : ", font = ("Montserrat", int(FONT16 * 0.8)), fg="white", bg="#07111F", anchor = W)
+resultExecTimeLabel.place(relx = 0.07, rely = 0.37)
+
+resultExecTimeValue = Label(resultSummaryFrame, text = "00.00", font = ("Montserrat", int(FONT16 * 0.8)), fg="#E2BD45", bg="#07111F", anchor = W)
+resultExecTimeValue.place(relx = 0.25, rely = 0.37)
+
+resultSummaryOutput = Label(resultSummaryFrame, text = "The closest result to the test image is", 
+                            font = ("Montserrat", int(FONT16 * 0.8)), fg="white", bg="#07111F", anchor = W)
+resultSummaryOutput.place(relx = 0.07, rely = 0.6)
 
 root.mainloop()
