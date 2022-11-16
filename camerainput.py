@@ -5,29 +5,39 @@ import cv2
 
 # ========= FUNCTIONS =========
 # --* Pop Up Camera *-- #
+def popUpCamera(root):
+   win = Toplevel(root)
+   win.title("Camera")
 
-# Create an instance of TKinter Window or frame
-win = Tk()
+   # Create a Label to capture the Video frames
+   cam = Label(win)
+   cam.pack()
+   cap = cv2.VideoCapture(0)
 
-# Set the size of the window
-win.geometry("700x350")
+   # Set the size of the window based on cam res
+   width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+   height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-# Create a Label to capture the Video frames
-label = Label(win)
-label.grid(row=0, column=0)
-cap= cv2.VideoCapture(0)
+   win.geometry(f"{width}x{height + 50}")
 
-# Define function to show frame
-def show_frames():
-   # Get the latest frame and convert into Image
-   cv2image= cv2.cvtColor(cap.read()[1],cv2.COLOR_BGR2RGB)
-   img = Image.fromarray(cv2image)
-   # Convert image to PhotoImage
-   imgtk = ImageTk.PhotoImage(image = img)
-   label.imgtk = imgtk
-   label.configure(image=imgtk)
-   # Repeat after an interval to capture continiously
-   label.after(20, show_frames)
+   # Capture button
+   captureBtn = Button(win, text = "Capture")
+   captureBtn.pack()
 
-show_frames()
-win.mainloop()
+   # Define function to show frame
+   def show_frames():
+      # Get the latest frame and convert into Image
+      cv2image = cv2.cvtColor(cap.read()[1], cv2.COLOR_BGR2RGB)
+      cv2image = cv2.flip(cv2image, 1)
+      img = Image.fromarray(cv2image)
+      # Convert image to PhotoImage
+      imgtk = ImageTk.PhotoImage(image = img)
+      cam.imgtk = imgtk
+      cam.configure(image = imgtk)
+      # Repeat after an interval to capture continiously
+      cam.after(10, show_frames)
+
+   show_frames()
+   win.mainloop()
+
+# --* Capture Photo *-- #
