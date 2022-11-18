@@ -1,11 +1,12 @@
 import numpy as np
+from matplotlib import pyplot as plt
 
 def euclidean_distance(v1,v2):
     #I.S. len(v1) = len(v2), v1 v2 array linear
     # Mengembalikan euclidean_distance dari v1 v2 (float)
     result = 0
     for i in range(len(v1)):
-        result += (v1[i]-v2[i])^2
+        result += (v1[i]-v2[i])**2
     result /= (result)**0.5
     return result
 
@@ -21,18 +22,34 @@ def sum2Array(array1, array2):
 
 
 
-
+#use np.mean(0) instead
 def arrayMeanInt(array_of_image):
+    print("Getting Mean image")
     #I.S. Array yang berisi vektor gambar
     #Rata - Rata yang dihasilkan di floor
-    array_of_imageO = array_of_image[0]
-    count = 1
-    for i in range(1,len(array_of_image)):
-        array_of_imageO = sum2Array(array_of_imageO, array_of_image[i])
-        count +=1
-    for i in range(len(array_of_imageO)):
-        array_of_imageO[i]//=count
+    array_of_imageO = []
+    k = len(array_of_image)
+    for i in range(len(array_of_image[0])):
+        print("Baris " + str(i))
+        sum = 0
+        count = 0
+        for j in range(k):
+            sum+= array_of_image[j][i]
+        array_of_imageO.append(sum//k)
     return array_of_imageO
+             
+"""
+Method 1: problem ineff
+array_of_imageO = array_of_image[0]
+count = 1
+for i in range(1,len(array_of_image)):
+    array_of_imageO = sum2Array(array_of_imageO, array_of_image[i])
+    count +=1
+for i in rang e(len(array_of_imageO)):
+    array_of_imageO[i]//=count
+return array_of_imageO
+"""
+
 
 
 
@@ -44,12 +61,12 @@ def subtractArray(array1, array2):
         array.append(array1[i]-array2[i])
     return array
 
-def findMinDistance(array, val):
+def findMinDistance(dataset_omega, test_omega):
     # Mengembalikan index yang euclidean distancenya paling kecil dengan val
-    min = euclidean_distance(val, array[0])
+    min = euclidean_distance(test_omega, dataset_omega[0])
     index = 0
-    for i in range(len(array)):
-        temp = euclidean_distance(array[i], val)
+    for i in range(len(dataset_omega)):
+        temp = euclidean_distance(dataset_omega[i], test_omega)
         if min>temp:
             min = temp
             index = i
@@ -63,10 +80,9 @@ def getEigenface(array_of_images,eigenVector):
     #Berdasarkan docs e eigenface = eigen_vector*mean_diff
     # yang dipake crossproduct of normalized array of images and eigenVector
     #
-    eigenFaces = np.matmul(array_of_images, eigenVector)
-    for i in range(len(array_of_images)):
-        eigen_face = get_column(eigenFaces,i)
-    return eigen_face
+    eigenFaces = np.matmul(np.transpose(array_of_images), np.transpose(eigenVector))
+    eigenFaces = np.transpose(eigenFaces)
+    return eigenFaces
 
 
 
@@ -80,18 +96,26 @@ def get_column(array_of_images, index):
 
 def calculateOmega(image, eigenface, mean):
     #Semua paramater dalam bentuk vektor
-    val = 0
-    temp = subtractArray(image, mean)
-    for i in range(len(temp)):
-        val += (eigenface[i]*temp[i])
+    print(image.shape)
+    temp = np.subtract(image, mean)
+    val = np.dot(temp,eigenface)
     return val 
 
 def calculateOmegaVector(eigenface_array, image, mean):
-    M = len(eigenface_array)
-    for i in range(M):
-        temp = calculateOmega(eigenface_array[i])
+    array = []
+    for i in range(len(eigenface_array)):
+        temp = calculateOmega(image, eigenface_array[i], mean)
+        array.append(temp)
+    return array
         
-        
+def displayIMG(vector):
+    arr = vector
+    arr = np.reshape(arr, (256,256))
+    plt.imshow(arr, cmap="gray")
+    plt.show()
+    
+    
+    
 
 matrix = [[1,5,9],
           [2,6,10],
@@ -102,10 +126,16 @@ array = [[1],
          [2],
          [3]]
 
-test = getEigenface(matrix, array)
+#test = getEigenface(matrix, array)
 
-print(test)
 
+
+
+array1 = [1,2,3]
+array2 = [4,5,6]
+print(sum2Array(array1, array2))
+
+print(np.mean(matrix, axis=1))
     
             
     
