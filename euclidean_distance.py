@@ -6,7 +6,7 @@ def euclidean_distance(v1,v2):
     # Mengembalikan euclidean_distance dari v1 v2 (float)
     result = 0
     for i in range(len(v1)):
-        result += (v1[i]-v2[i])^2
+        result += (v1[i]-v2[i])**2
     result /= (result)**0.5
     return result
 
@@ -61,12 +61,12 @@ def subtractArray(array1, array2):
         array.append(array1[i]-array2[i])
     return array
 
-def findMinDistance(array, val):
+def findMinDistance(dataset_omega, test_omega):
     # Mengembalikan index yang euclidean distancenya paling kecil dengan val
-    min = euclidean_distance(val, array[0])
+    min = euclidean_distance(test_omega, dataset_omega[0])
     index = 0
-    for i in range(len(array)):
-        temp = euclidean_distance(array[i], val)
+    for i in range(len(dataset_omega)):
+        temp = euclidean_distance(dataset_omega[i], test_omega)
         if min>temp:
             min = temp
             index = i
@@ -80,10 +80,9 @@ def getEigenface(array_of_images,eigenVector):
     #Berdasarkan docs e eigenface = eigen_vector*mean_diff
     # yang dipake crossproduct of normalized array of images and eigenVector
     #
-    eigenFaces = np.matmul(eigenVector, array_of_images)
-    for i in range(len(array_of_images)):
-        eigen_face = get_column(eigenFaces,i)
-    return eigen_face
+    eigenFaces = np.matmul(np.transpose(array_of_images), np.transpose(eigenVector))
+    eigenFaces = np.transpose(eigenFaces)
+    return eigenFaces
 
 
 
@@ -97,16 +96,17 @@ def get_column(array_of_images, index):
 
 def calculateOmega(image, eigenface, mean):
     #Semua paramater dalam bentuk vektor
-    val = 0
-    temp = subtractArray(image, mean)
-    for i in range(len(temp)):
-        val += (eigenface[i]*temp[i])
+    print(image.shape)
+    temp = np.subtract(image, mean)
+    val = np.dot(temp,eigenface)
     return val 
 
 def calculateOmegaVector(eigenface_array, image, mean):
-    M = len(eigenface_array)
-    for i in range(M):
-        temp = calculateOmega(eigenface_array[i])
+    array = []
+    for i in range(len(eigenface_array)):
+        temp = calculateOmega(image, eigenface_array[i], mean)
+        array.append(temp)
+    return array
         
 def displayIMG(vector):
     arr = vector
@@ -126,7 +126,7 @@ array = [[1],
          [2],
          [3]]
 
-test = getEigenface(matrix, array)
+#test = getEigenface(matrix, array)
 
 
 

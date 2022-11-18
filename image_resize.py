@@ -34,7 +34,8 @@ def collect_image(size, path = "./dataset"):
                     img = cv.resize(img, (size,size))
                     img = transformMtoA(img)
                     matrix.append(img)
-                    matrix_name.append(folder)
+                    matrix_name.append(file_path)
+                    #matrix_name.append(folder)
         else:
             file_path = path+"/"+folder
             img = cv.imread(file_path, 0)
