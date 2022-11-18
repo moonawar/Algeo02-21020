@@ -6,16 +6,18 @@ import os
 
 def transformMtoA(matrix):
     #I.S. matrix adalah matriks persegi
-    array =np.array([])
+    array = np.array([])
+    
     for i in range(len(matrix)):
         arraytemp = np.array(matrix[i])
-        np.concatenate((array, arraytemp))
-    return array
+        array = np.concatenate((array, arraytemp))
+    return array.astype(int)
 
 
 
 
 def collect_image(size, path = "./dataset"):
+    #Try Glob if we also want to store the address
     #Perbaruin biat bisa buka folder dalam folder
     matrix = []
     matrix_name = []
@@ -41,10 +43,13 @@ def collect_image(size, path = "./dataset"):
             img = transformMtoA(img)
             matrix.append(img)
             matrix_name.append(folder)   
-    return matrix, matrix_name
+    return np.array(matrix), matrix_name
 
-img_array, img_name = collect_image( 256,"./dataset")
-print(img_array)
+print(transformMtoA([[1,2,3],[4,5,6],[7,8,9]]))
+
+
+#img_array, img_name = collect_image( 256,"./dataset")
+#print(img_array)
 
 
 
