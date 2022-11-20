@@ -10,8 +10,6 @@ def euclidean_distance(v1,v2):
     result /= (result)**0.5
     return result
 
-
-
 def sum2Array(array1, array2):
     #Syarat
     #len(array1)==len(array2)
@@ -20,17 +18,13 @@ def sum2Array(array1, array2):
         array3.append(array1[i]+array2[i])
     return array3
 
-
-
 #use np.mean(0) instead
 def arrayMeanInt(array_of_image):
-    print("Getting Mean image")
     #I.S. Array yang berisi vektor gambar
     #Rata - Rata yang dihasilkan di floor
     array_of_imageO = []
     k = len(array_of_image)
     for i in range(len(array_of_image[0])):
-        print("Baris " + str(i))
         sum = 0
         count = 0
         for j in range(k):
@@ -49,11 +43,6 @@ for i in rang e(len(array_of_imageO)):
     array_of_imageO[i]//=count
 return array_of_imageO
 """
-
-
-
-
-
 
 def subtractArray(array1, array2):
     array = []
@@ -74,7 +63,6 @@ def findMinDistance(dataset_omega, test_omega):
             continue
     return index
 
-
 def getEigenface(array_of_images,eigenVector):
     #Cuman 1 eigenface
     #Berdasarkan docs e eigenface = eigen_vector*mean_diff
@@ -83,10 +71,6 @@ def getEigenface(array_of_images,eigenVector):
     eigenFaces = np.matmul(np.transpose(array_of_images), np.transpose(eigenVector))
     eigenFaces = np.transpose(eigenFaces)
     return eigenFaces
-
-
-
-
 
 def get_column(array_of_images, index):
     vectors = []
@@ -113,9 +97,6 @@ def displayIMG(vector):
     arr = np.reshape(arr, (256,256))
     plt.imshow(arr, cmap="gray")
     plt.show()
-    
-    
-    
 
 matrix = [[1,5,9],
           [2,6,10],
@@ -127,10 +108,6 @@ array = [[1],
          [3]]
 
 #test = getEigenface(matrix, array)
-
-
-
-
 array1 = [1,2,3]
 array2 = [4,5,6]
 print(sum2Array(array1, array2))

@@ -1,6 +1,6 @@
 from euclidean_distance import getEigenface, displayIMG, arrayMeanInt, subtractArray, calculateOmegaVector, findMinDistance
 
-from image_resize import collect_image, transformMtoA
+from image_handler import collect_image, transformMtoA
 import numpy as np
 import cv2 as cv
 from matplotlib import pyplot as plt

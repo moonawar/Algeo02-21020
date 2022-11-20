@@ -1,14 +1,76 @@
 from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import filedialog
-
-# -- Global Variables -- #
-inputImage_path = None
-closestResult_path = None
+from image_handler import *
+import time as t
+import camerainput as cIn
 
 root = Tk()
 
-# -- Getting Resolution Right -- #
+# --% Global Variables %-- #
+inputImage_path = None
+dataset_path = None
+closestResult_path = None
+
+NO_FILE_CHOSEN = "No file chosen"
+DATASET_INPUT = NO_FILE_CHOSEN
+TEST_INPUT = NO_FILE_CHOSEN
+
+
+# --% Functions %-- #
+def selectDataset():
+    global dataset_path 
+    dataset_path = filedialog.askdirectory(initialdir="./", title="Select Dataset")
+
+    dataset_folder = ""
+    if dataset_path != "":
+        for c in dataset_path:
+            if c == "/":
+                dataset_folder = ""
+            else:
+                dataset_folder += c
+
+        DATASET_INPUT = dataset_folder
+        global chosenDatasetLabel
+        chosenDatasetLabel.config(text = DATASET_INPUT)
+
+def selectTestImage():
+    global inputImage_path
+    inputImage_path = filedialog.askopenfilename(initialdir="./", title="Select Test Image", filetypes=(("image files", "*.jpg *.png"), ("all files", "*.*")))
+
+    test_image = ""
+    if inputImage_path != "":
+        for c in inputImage_path:
+            if c == "/":
+                test_image = ""
+            else:
+                test_image += c
+        
+        if (len(test_image) > 32):
+            test_image = "..." + test_image[-32:]
+
+        TEST_INPUT = test_image
+        global chosenTestImageLabel
+        chosenTestImageLabel.config(text = TEST_INPUT)
+        updateInputImage()
+
+# --* Open Camera *-- #
+def openCamera():
+    global root
+    cIn.popUpCamera(root)
+
+def updateInputImage():
+    testInputImage = Image.open(inputImage_path)
+    testInputImage = SquareCropImage(testInputImage)
+    testInputImage = ResizeImage(testInputImage, IMG_SIZE)
+
+    global f_testInputImage 
+    f_testInputImage =  ImageTk.PhotoImage(testInputImage)
+
+    global outputTestImageCanvas
+    outputTestImageCanvas.create_image(0, 0, anchor=NW, image=f_testInputImage)
+
+# --% Getting Resolution Right %-- #
 RESOLUTION_FACTOR = root.winfo_screenwidth() / 1440
 WINDOW_WIDTH = min(int(1260 * RESOLUTION_FACTOR), 1440)
 WINDOW_HEIGHT = min(int(675 * RESOLUTION_FACTOR), 880)
@@ -52,11 +114,12 @@ inputDatasetLabel = Label(inputCanvas, text = "Insert Your Dataset", font = ("Mo
 inputDatasetLabel.place(relx = 0.11, rely = 0.075)
 
 # . Input Dataset Button
-inputDatasetBtn = Button(inputCanvas, image = chooseFileImg, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A")
+inputDatasetBtn = Button(inputCanvas, image = chooseFileImg, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A"
+                        , command = selectDataset)
 inputDatasetBtn.place(relx = 0.11, rely = 0.15, relwidth = 0.4, relheight = 0.05)
 
 # . Chosen Dataset Label
-chosenDatasetLabel = Label(inputCanvas, text = "No file chosen", font = ("Montserrat", int(FONT16 * 0.9)), bg = "#0D356A", fg = "white", anchor = W)
+chosenDatasetLabel = Label(inputCanvas, text = DATASET_INPUT, font = ("Montserrat", int(FONT16 * 0.9)), bg = "#0D356A", fg = "white", anchor = NW, wraplength = 170, justify = LEFT)
 chosenDatasetLabel.place(relx = 0.52, rely = 0.15)
 
 # B. Insert Test Image
@@ -65,12 +128,13 @@ inputTestImageLabel = Label(inputCanvas, text = "Insert Your Test Image", font =
 inputTestImageLabel.place(relx = 0.11, rely = 0.27)
 
 # . Input Dataset Button
-inputTestImageBtn = Button(inputCanvas, image = chooseFileImg, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A")
+inputTestImageBtn = Button(inputCanvas, image = chooseFileImg, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A",
+                           command = selectTestImage)
 inputTestImageBtn.place(relx = 0.11, rely = 0.35, relwidth = 0.4, relheight = 0.05)
 
 # . Input Test Image Button
-chosenTestImageLabel = Label(inputCanvas, text = "No file chosen", font = ("Montserrat", int(FONT16 * 0.9)), bg = "#0D356A", fg = "white", anchor = W)
-chosenTestImageLabel.place(relx = 0.52, rely = 0.35)
+chosenTestImageLabel = Label(inputCanvas, text = TEST_INPUT, font = ("Montserrat", int(FONT16 * 0.9)), bg = "#0D356A", fg = "white", anchor = NW, wraplength = 170, justify = LEFT)
+chosenTestImageLabel.place(relx = 0.52, rely = 0.35, relheight=0.07)
 
 # . Use Camera Label
 useCameraLabel = Label(inputCanvas, text = "Use camera instead?", font = ("Montserrat", int(FONT16 * 0.8), "underline"), bg = "#0D356A", fg = "white", anchor = W)
@@ -78,7 +142,8 @@ useCameraLabel.place(relx = 0.11, rely = 0.42)
 
 # . Use Camera Button
 useCameraIcon = ImageTk.PhotoImage(Image.open("assets/cam_btn.png"))
-useCameraBtn = Button(inputCanvas, image = useCameraIcon, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A")
+useCameraBtn = Button(inputCanvas, image = useCameraIcon, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A",
+                      command = openCamera)
 useCameraBtn.place(relx = 0.55, rely = 0.425)
 
 # C. Run the Test 

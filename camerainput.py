@@ -18,11 +18,18 @@ def popUpCamera(root):
    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-   win.geometry(f"{width}x{height + 50}")
+   win.geometry(f"{width}x{height + 80}")
+   win.configure(bg = "#07111F")
 
    # Capture button
-   captureBtn = Button(win, text = "Capture")
-   captureBtn.pack()
+   # bottomFrame = Frame(win, bg = "#07111F")
+   # bottomFrame.pack(side = BOTTOM)
+
+   captureBtnImage = ImageTk.PhotoImage(Image.open("assets/capture_btn.png"))
+
+   captureBtn = Button(win, text = "Capture", image = captureBtnImage, background="#07111F", borderwidth = 0, highlightthickness = 0, activebackground="#07111F", 
+                      )
+   captureBtn.place(y = height + 40, x = width/2, anchor = CENTER)
 
    # Define function to show frame
    def show_frames():
