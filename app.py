@@ -2,10 +2,8 @@ from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import filedialog
 from image_handler import *
-import time as t
 import camerainput as cIn
-
-root = Tk()
+import time as t
 
 # --% Global Variables %-- #
 inputImage_path = None
@@ -16,6 +14,8 @@ NO_FILE_CHOSEN = "No file chosen"
 DATASET_INPUT = NO_FILE_CHOSEN
 TEST_INPUT = NO_FILE_CHOSEN
 
+SUMMARY = ""
+STARTING_TIME = None
 
 # --% Functions %-- #
 def selectDataset():
@@ -33,6 +33,7 @@ def selectDataset():
         DATASET_INPUT = dataset_folder
         global chosenDatasetLabel
         chosenDatasetLabel.config(text = DATASET_INPUT)
+        delWarning()
 
 def selectTestImage():
     global inputImage_path
@@ -53,11 +54,7 @@ def selectTestImage():
         global chosenTestImageLabel
         chosenTestImageLabel.config(text = TEST_INPUT)
         updateInputImage()
-
-# --* Open Camera *-- #
-def openCamera():
-    global root
-    cIn.popUpCamera(root)
+        delWarning()
 
 def updateInputImage():
     testInputImage = Image.open(inputImage_path)
@@ -69,6 +66,68 @@ def updateInputImage():
 
     global outputTestImageCanvas
     outputTestImageCanvas.create_image(0, 0, anchor=NW, image=f_testInputImage)
+
+def updateClosestResultImage():
+    closestResultImage = Image.open(closestResult_path)
+    closestResultImage = SquareCropImage(closestResultImage)
+    closestResultImage = ResizeImage(closestResultImage, IMG_SIZE)
+
+    global f_closestResultImage 
+    f_closestResultImage =  ImageTk.PhotoImage(closestResultImage)
+
+    global outputClosestResultCanvas
+    outputClosestResultCanvas.create_image(0, 0, anchor=NW, image=f_closestResultImage)
+
+def updateSummary(summary):
+    global SUMMARY
+    SUMMARY = summary
+
+    global resultSummaryOutput
+    resultSummaryOutput.config(text = SUMMARY)
+
+def popUpWarning(warning):
+    global warningLabel
+    warningLabel.config(text = warning)
+
+def delWarning():
+    global warningLabel
+    warningLabel.config(text = "")
+
+def updateExecTime():
+    global STARTING_TIME
+    global resultExecTimeOutput
+
+    if STARTING_TIME != None:
+        execTime = t.time() - STARTING_TIME
+        resultExecTimeValue.config(text = "{0:.2f} seconds".format(execTime))
+    else:
+        resultExecTimeValue.config(text = "0.0 seconds")
+
+
+def RunFaceRecognition():
+    global dataset_path
+    global inputImage_path
+    global closestResult_path
+
+    global STARTING_TIME
+
+    import face_recog as fr
+
+    if dataset_path == None or inputImage_path == None:
+        popUpWarning("Please select a dataset and a test image.")
+        return   
+
+    STARTING_TIME = t.time()
+    closestResult_path = fr.FaceRecognition(dataset_path, inputImage_path)
+    updateClosestResultImage()
+    updateExecTime()
+
+# --* Open Camera *-- #
+def openCamera():
+    global root
+    cIn.popUpCamera(root)
+
+root = Tk()
 
 # --% Getting Resolution Right %-- #
 RESOLUTION_FACTOR = root.winfo_screenwidth() / 1440
@@ -153,8 +212,13 @@ runTestLabel = Label(inputCanvas, text = "Run the test", font = ("Montserrat", i
 runTestLabel.place(relx = 0.11, rely = 0.55)
 
 # . Run the Test Button
-runTestBtn = Button(inputCanvas, image = runTestIcon, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A")
+runTestBtn = Button(inputCanvas, image = runTestIcon, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A",
+                    command = RunFaceRecognition)
 runTestBtn.place(relx = 0.52, rely = 0.55)
+
+# . Warning Label
+warningLabel = Label(inputCanvas, font = ("Montserrat", int(FONT16 * 0.8)), bg = "#0D356A", fg = "white", anchor = W)
+warningLabel.place(relx = 0.11, rely = 0.65)
 
 # --% Output Frame %-- #
 outputFrame = Frame(root, bg = "#D9D9D9")
@@ -187,7 +251,7 @@ resultExecTimeLabel.place(relx = 0.07, rely = 0.37)
 resultExecTimeValue = Label(resultSummaryFrame, text = "00.00", font = ("Montserrat", int(FONT16 * 0.8)), fg="#E2BD45", bg="#07111F", anchor = W)
 resultExecTimeValue.place(relx = 0.25, rely = 0.37)
 
-resultSummaryOutput = Label(resultSummaryFrame, text = "The closest result to the test image is", 
+resultSummaryOutput = Label(resultSummaryFrame, text = SUMMARY, 
                             font = ("Montserrat", int(FONT16 * 0.8)), fg="white", bg="#07111F", anchor = W)
 resultSummaryOutput.place(relx = 0.07, rely = 0.6)
 
