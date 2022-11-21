@@ -79,3 +79,6 @@ def get_eigen(mat):
     eigen_values = get_eigen_values(mat)
     eigen_vectors = get_eigen_vectors(mat, eigen_values)
     return eigen_values, eigen_vectors
+
+def get_weight(eigen_v, image_diff):
+    return np.matmul(eigen_v, image_diff)
