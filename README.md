@@ -35,13 +35,13 @@ Jika belum maka install terlebih dahulu [disini](https://www.python.org/)
   ``` 
  4. Clone repository ini ke local dengan menjalankan kode berikut di terminal
   ```github
-  git clone https://github.com/moonawar/Algeo02-21020.git
+    git clone https://github.com/moonawar/Algeo02-21020.git
   ```
  4. Buka terminal atau command line di folder yang sudah di clone
  5. Masuk ke folder src dan jalankan main.py
   ```cmd
-  cd src
-  python main.py
+    cd src
+    python main.py
   ```
 Jika ada kegagalan, coba ganti kata python dengan python3 di command line.
 
