@@ -27,7 +27,6 @@ List fitur yang telah dibuat:
 1. Pastikan python sudah terinstall dengan benar. Gunakan command line di bawah ini untuk mengecek apakah python sudah terinstall dengan benar atau belum. 
 Jika belum maka install terlebih dahulu [disini](https://www.python.org/)
   ```
-    // Jika python sudah terinstall dengan benar, maka command di bawah ini akan menampilkan versi python yang terinstall
     python --version
   ```
  2. Install semua library yang diperlukan dalam aplikasi dengan command berikut:
