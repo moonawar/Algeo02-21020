@@ -12,13 +12,6 @@ def euclidean_distance(v1,v2):
 
 
 
-def sum2Array(array1, array2):
-    #Syarat
-    #len(array1)==len(array2)
-    array3 = []
-    for i in range(len(array1)):
-        array3.append(array1[i]+array2[i])
-    return array3
 
 
 
@@ -55,23 +48,17 @@ return array_of_imageO
 
 
 
-def subtractArray(array1, array2):
-    array = []
-    for i in range(len(array1)):
-        array.append(array1[i]-array2[i])
-    return array
-
 def findMinDistance(dataset_omega, test_omega):
     # Mengembalikan index yang euclidean distancenya paling kecil dengan val
     min = euclidean_distance(test_omega, dataset_omega[0])
     index = 0
     for i in range(len(dataset_omega)):
+        
         temp = euclidean_distance(dataset_omega[i], test_omega)
-        if min>temp:
+        print(temp)
+        if temp<min:
             min = temp
             index = i
-        else:
-            continue
     return index
 
 
@@ -94,18 +81,12 @@ def get_column(array_of_images, index):
         vectors.append(array_of_images[i][0])
     return vectors
 
-def calculateOmega(image, eigenface, mean):
-    #Semua paramater dalam bentuk vektor
-    print(image.shape)
-    temp = np.subtract(image, mean)
-    val = np.dot(temp,eigenface)
-    return val 
+
 
 def calculateOmegaVector(eigenface_array, image, mean):
+    #one image only
     array = []
-    for i in range(len(eigenface_array)):
-        temp = calculateOmega(image, eigenface_array[i], mean)
-        array.append(temp)
+    array = np.dot( eigenface_array,np.transpose(np.subtract(image,mean)))
     return array
         
 def displayIMG(vector):
@@ -115,27 +96,7 @@ def displayIMG(vector):
     plt.show()
     
     
-    
 
-matrix = [[1,5,9],
-          [2,6,10],
-          [3,7,11],
-          [4,8,12]]
-
-array = [[1],
-         [2],
-         [3]]
-
-#test = getEigenface(matrix, array)
-
-
-
-
-array1 = [1,2,3]
-array2 = [4,5,6]
-print(sum2Array(array1, array2))
-
-print(np.mean(matrix, axis=1))
     
             
     

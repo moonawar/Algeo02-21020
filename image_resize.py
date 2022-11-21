@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 import os
-
+import glob
 
 
 def transformMtoA(matrix):
@@ -14,7 +14,24 @@ def transformMtoA(matrix):
     return array.astype(int)
 
 
-
+def collect_image2(size, path = "./dataset"):
+    matrix = []
+    matrix_name = []
+    files = []
+    file_type=[".jpg", ".gif", ".jpeg", ".png"]
+    files = [files.extend(glob.glob(path+'*.'+e)) for e in file_type]
+    
+    print(files)
+    for file in files:
+        print(file)
+        if(os.path.splitext(file)[1] in file_type):
+            img = cv.imread(file, 0)
+            #ini method ubahnya bisa diganti mungkin
+            img = cv.resize(img, (size,size))
+            img = transformMtoA(img)
+            matrix.append(img)
+            matrix_name.append(file)
+    return matrix, matrix_name        
 
 def collect_image(size, path = "./dataset"):
     #Try Glob if we also want to store the address
@@ -22,7 +39,19 @@ def collect_image(size, path = "./dataset"):
     matrix = []
     matrix_name = []
     file_type=[".jpg", ".gif", ".jpeg", ".png"]
-    for folder in os.listdir(path):
+    for root,directories, files in os.walk(path):
+        for name in files:
+            file = os.path.join(root,name)
+            if os.path.splitext(name)[1] in file_type:
+                print(file)
+                img = cv.imread(file, 0)
+                #ini method ubahnya bisa diganti mungkin
+                img = cv.resize(img, (size,size))
+                img = transformMtoA(img)
+                matrix.append(img)
+                matrix_name.append(file)
+                
+    """for folder in os.listdir(path):
         if(os.path.splitext(folder)[1] not in file_type):
             folder_path = os.path.join(path,folder)
             print(folder)
@@ -43,7 +72,7 @@ def collect_image(size, path = "./dataset"):
             img = cv.resize(img, (size,size))
             img = transformMtoA(img)
             matrix.append(img)
-            matrix_name.append(folder)   
+            matrix_name.append(folder) """  
     return np.array(matrix), matrix_name
 
 print(transformMtoA([[1,2,3],[4,5,6],[7,8,9]]))
