@@ -39,7 +39,7 @@ def ExtractDataset(dataset):
     eigen_faces = np.matmul(image_diff, eigen_vectors_op)
     # Normalized to get the eigen faces
     for i in range(eigen_faces.shape[1]):
-        eigen_faces[:, i] = eigen_faces[:, i] / np.linalg.norm(eigen_faces[:, i])
+        eigen_faces[:, i] = eigen_faces[:, i] / e.vector_length(eigen_faces[:, i])
     eigen_faces = np.transpose(eigen_faces)
     # -----------------------------------------------------------------
 

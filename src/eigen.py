@@ -1,5 +1,6 @@
 import numpy as np
 import euclidean_distance as ed
+from math import sqrt
 
 def QR_decomposition(mat):
     # I.S. matriks mat adalah matriks persegi
@@ -18,7 +19,7 @@ def QR_decomposition(mat):
             # Kurangi kolom i dengan dot product kali kolom j
             Q[:, i] = Q[:, i] - R[j, i] * Q[:, j]
         # Hitung norm dari kolom i
-        R[i, i] = np.linalg.norm(Q[:, i])
+        R[i, i] = vector_length(Q[:, i])
         # Normalisasi kolom i
         Q[:, i] = Q[:, i] / R[i, i]
 
@@ -83,10 +84,12 @@ def get_eigen_vectors(mat, eigen_values):
     for eigen_value in eigen_values:
         # Gunakan inverse power iteration hingga vektor eigen konvergen ke nilai yang benar
         iterationMat = np.subtract(mat, np.multiply(eigen_value, IDENTITY_MATRIX))
+        if (np.linalg.det(iterationMat) == 0):
+            iterationMat = np.subtract(mat, np.multiply(eigen_value + 0.0001, IDENTITY_MATRIX))
+        
         iterationMat = np.linalg.inv(iterationMat)
-
         eigen_vector = np.matmul(iterationMat, RANDOM_VECTOR)
-        eigen_vector = eigen_vector / np.linalg.norm(eigen_vector)
+        eigen_vector = eigen_vector / vector_length(eigen_vector)
         iteration = 0
 
         # Treshold untuk menentukan apakah vektor eigen sudah konvergen atau belum
@@ -98,8 +101,8 @@ def get_eigen_vectors(mat, eigen_values):
         while iteration < max_iteration and delta > deltaTreshold:
             prevEigenVector = eigen_vector
             eigen_vector = np.matmul(iterationMat, eigen_vector)
-            eigen_vector = eigen_vector / np.linalg.norm(eigen_vector)
-            delta = np.linalg.norm(np.subtract(eigen_vector, prevEigenVector))
+            eigen_vector = eigen_vector / vector_length(eigen_vector)
+            delta = vector_length(np.subtract(eigen_vector, prevEigenVector))
             iteration += 1
         
         # Tambahkan vektor eigen ke array eigen_vectors
@@ -142,3 +145,11 @@ def get_weights(eigen_faces, image_diff):
         for eigen_vector in range(eigen_faces.shape[0]):
             weights.append(np.dot(eigen_faces[eigen_vector], image_diff))
     return np.array(weights)
+
+def vector_length(v):
+    # I.S. v adalah sebuah vektor
+    # F.S. mengembalikan panjang dari vektor v
+    sum = 0
+    for i in range(len(v)):
+        sum += v[i] ** 2
+    return sqrt(sum)

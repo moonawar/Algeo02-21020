@@ -31,8 +31,9 @@ isShowingClosestImage = True # Otherwise, show the reconstructed image
 
 # --% Functions %-- #
 def selectDataset():
+    # Select dataset foldet with images
     global dataset_path 
-    dataset_path = filedialog.askdirectory(initialdir="./", title="Select Dataset")
+    dataset_path = filedialog.askdirectory(initialdir=f"{app_path}/../test/", title="Select Dataset")
 
     dataset_folder = ""
     if dataset_path != "":
@@ -45,11 +46,16 @@ def selectDataset():
         DATASET_INPUT = dataset_folder
         global chosenDatasetLabel
         chosenDatasetLabel.config(text = DATASET_INPUT)
+        updateSummary("")
         delWarning()
 
+    global outputClosestResultCanvas
+    outputClosestResultCanvas.delete("all")
+
 def selectTestImage():
+    # Select test image
     global inputImage_path
-    inputImage_path = filedialog.askopenfilename(initialdir="./", title="Select Test Image", filetypes=(("image files", "*.jpg *.png *.gif *.jpeg"), ("all files", "*.*")))
+    inputImage_path = filedialog.askopenfilename(initialdir=f"{app_path}/../test/", title="Select Test Image", filetypes=(("image files", "*.jpg *.png *.gif *.jpeg"), ("all files", "*.*")))
 
     test_image = ""
     if inputImage_path != "":
@@ -68,7 +74,12 @@ def selectTestImage():
         updateInputImage()
         delWarning()
 
+    global outputClosestResultCanvas
+    outputClosestResultCanvas.delete("all")
+    updateSummary("")
+
 def updateInputImage():
+    # Update input image GUI (showing image on the panel)
     testInputImage = Image.open(inputImage_path)
     testInputImage = SquareCropImageTk(testInputImage)
     testInputImage = ResizeImage(testInputImage, IMG_SIZE)
@@ -77,9 +88,11 @@ def updateInputImage():
     f_testInputImage =  ImageTk.PhotoImage(testInputImage)
 
     global outputTestImageCanvas
+    outputTestImageCanvas.delete("all")
     outputTestImageCanvas.create_image(0, 0, anchor=NW, image=f_testInputImage)
 
 def updateClosestResultImage():
+    # Update closest result image GUI (showing image on the panel)
     closestResultImage = Image.open(closestResult_path)
     closestResultImage = SquareCropImageTk(closestResultImage)
     closestResultImage = ResizeImage(closestResultImage, IMG_SIZE)
@@ -88,9 +101,11 @@ def updateClosestResultImage():
     f_closestResultImage =  ImageTk.PhotoImage(closestResultImage)
 
     global outputClosestResultCanvas
+    outputClosestResultCanvas.delete("all")
     outputClosestResultCanvas.create_image(0, 0, anchor=NW, image=f_closestResultImage)
 
 def updateSummary(summary):
+    # Update summary GUI (showing summary on the panel)
     global SUMMARY
     SUMMARY = summary
 
@@ -98,14 +113,17 @@ def updateSummary(summary):
     resultSummaryOutput.config(text = SUMMARY)
 
 def popUpWarning(warning):
+    # Pop up warning message
     global warningLabel
     warningLabel.config(text = warning)
 
 def delWarning():
+    # Delete warning message
     global warningLabel
     warningLabel.config(text = "")
 
 def updateExecTime():
+    # Update execution time GUI (showing execution time on the panel)
     global STARTING_TIME
     global resultExecTimeValue
 
@@ -116,6 +134,7 @@ def updateExecTime():
         resultExecTimeValue.config(text = "0.0 seconds")
 
 def toggleShowOriginalImage():
+    # Toggle between showing original image and inputted image
     global isShowingOriginalImage
     global toggleOriginalImageBtn
     global toggleOff
@@ -134,6 +153,7 @@ def toggleShowOriginalImage():
             f_testInputImage = ImageTk.PhotoImage(Image.fromarray(img))
 
             global outputTestImageCanvas
+            outputTestImageCanvas.delete("all")
             outputTestImageCanvas.create_image(0, 0, anchor=NW, image=f_testInputImage)
             
         else:
@@ -144,6 +164,7 @@ def toggleShowOriginalImage():
         popUpWarning("Please select a test image.")
 
 def toggleShowClosestImage():
+    # Toggle between showing closest image and reconstructed image
     global isShowingClosestImage
     global toggleClosestImageBtn
     global toggleOff
@@ -154,13 +175,13 @@ def toggleShowClosestImage():
     if closestResult_path != None:
         if isShowingClosestImage:
             toggleClosestImageBtn.config(image = toggleOff)
-            # img = fr.ReconstructImage(eigen_faces, dataset_mean, test_image_weights)
             img = fr.ReconstructImage(eigen_faces, dataset_mean, test_image_weights)
 
             global f_closestResultImage
             f_closestResultImage = ImageTk.PhotoImage(Image.fromarray(img).resize((IMG_SIZE, IMG_SIZE)))
 
             global outputClosestResultCanvas
+            outputClosestResultCanvas.delete("all")
             outputClosestResultCanvas.create_image(0, 0, anchor=NW, image=f_closestResultImage)
 
             isShowingClosestImage = False
@@ -172,6 +193,7 @@ def toggleShowClosestImage():
         popUpWarning("Please run the face recognition first.")
 
 def RunFaceRecognition():
+    # Run face recognition
     global dataset_path
     global inputImage_path
     global closestResult_path
@@ -186,8 +208,12 @@ def RunFaceRecognition():
 
     STARTING_TIME = t.time()
     closestResult_path = fr.FaceRecognition(dataset_path, inputImage_path)
-    updateClosestResultImage()
-    updateExecTime()
+    if closestResult_path == -1:
+        updateSummary("No close face detected in the test image.")
+        updateExecTime()
+    else:
+        updateClosestResultImage()
+        updateExecTime()
 
 # --* Open Camera *-- #
 def openCamera():
