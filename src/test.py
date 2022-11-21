@@ -42,7 +42,6 @@ def main_process():
 
     test_omega = GetTestImageOmega(face, test_img, mean)
 
-
     x = findMinDistance(omega, test_omega)
     return x
 

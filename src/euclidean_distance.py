@@ -35,18 +35,21 @@ def subtractArray(array1, array2):
 
 def findMinDistance(dataset_omega, test_omega):
     # Mengembalikan index yang euclidean distancenya paling kecil dengan value
-    TOLERANCE_LEVEL = 3000000
-
     min = euclidean_distance(test_omega, dataset_omega[0])
+    max = euclidean_distance(test_omega, dataset_omega[0])
     index = 0
     for i in range(len(dataset_omega)):
         temp = euclidean_distance(dataset_omega[i], test_omega)
         if min > temp:
             min = temp
             index = i
+        if max > temp:
+            max = temp
         else:
             continue
     
+    TOLERANCE_LEVEL = max - min // 2
+
     if min > TOLERANCE_LEVEL:
         return -1
     return index

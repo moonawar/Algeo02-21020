@@ -2,6 +2,7 @@ from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import filedialog
 from image_handler import *
+import cv2 as cv
 import camerainput as cIn
 import time as t
 import os
@@ -18,7 +19,15 @@ TEST_INPUT = NO_FILE_CHOSEN
 SUMMARY = ""
 STARTING_TIME = None
 
+eigen_faces = None
+test_image_weights = None
+dataset_mean = None
+image_index = None
+
 app_path = os.path.dirname(os.path.abspath(__file__))
+
+isShowingOriginalImage = True # Otherwise, show inputted image which is on grayscale mode
+isShowingClosestImage = True # Otherwise, show the reconstructed image
 
 # --% Functions %-- #
 def selectDataset():
@@ -40,7 +49,7 @@ def selectDataset():
 
 def selectTestImage():
     global inputImage_path
-    inputImage_path = filedialog.askopenfilename(initialdir="./", title="Select Test Image", filetypes=(("image files", "*.jpg *.png"), ("all files", "*.*")))
+    inputImage_path = filedialog.askopenfilename(initialdir="./", title="Select Test Image", filetypes=(("image files", "*.jpg *.png *.gif *.jpeg"), ("all files", "*.*")))
 
     test_image = ""
     if inputImage_path != "":
@@ -106,6 +115,61 @@ def updateExecTime():
     else:
         resultExecTimeValue.config(text = "0.0 seconds")
 
+def toggleShowOriginalImage():
+    global isShowingOriginalImage
+    global toggleOriginalImageBtn
+    global toggleOff
+    global toggleOn
+
+    if inputImage_path != None:
+        if isShowingOriginalImage:
+            toggleOriginalImageBtn.config(image = toggleOff)
+            isShowingOriginalImage = False
+            
+            img = cv.imread(inputImage_path, cv.IMREAD_GRAYSCALE)
+            img = SquareCropImageCV(img)
+            img = cv.resize(img, (IMG_SIZE, IMG_SIZE))
+
+            global f_testInputImage
+            f_testInputImage = ImageTk.PhotoImage(Image.fromarray(img))
+
+            global outputTestImageCanvas
+            outputTestImageCanvas.create_image(0, 0, anchor=NW, image=f_testInputImage)
+            
+        else:
+            toggleOriginalImageBtn.config(image = toggleOn)
+            updateInputImage()
+            isShowingOriginalImage = True
+    else:
+        popUpWarning("Please select a test image.")
+
+def toggleShowClosestImage():
+    global isShowingClosestImage
+    global toggleClosestImageBtn
+    global toggleOff
+    global toggleOn
+
+    import face_recog as fr
+
+    if closestResult_path != None:
+        if isShowingClosestImage:
+            toggleClosestImageBtn.config(image = toggleOff)
+            # img = fr.ReconstructImage(eigen_faces, dataset_mean, test_image_weights)
+            img = fr.ReconstructImage(eigen_faces, dataset_mean, test_image_weights)
+
+            global f_closestResultImage
+            f_closestResultImage = ImageTk.PhotoImage(Image.fromarray(img).resize((IMG_SIZE, IMG_SIZE)))
+
+            global outputClosestResultCanvas
+            outputClosestResultCanvas.create_image(0, 0, anchor=NW, image=f_closestResultImage)
+
+            isShowingClosestImage = False
+        else:
+            toggleClosestImageBtn.config(image = toggleOn)
+            updateClosestResultImage()
+            isShowingClosestImage = True
+    else:
+        popUpWarning("Please run the face recognition first.")
 
 def RunFaceRecognition():
     global dataset_path
@@ -239,21 +303,44 @@ def START_APP():
     outputFrame = Frame(root, bg = "#D9D9D9")
     outputFrame.place(relheight = 0.88, relwidth = 0.7, relx = 0.3, rely = 0.12)
 
+    # . for toggle button
+    global toggleOn, toggleOff
+    toggleOn = ImageTk.PhotoImage(Image.open(f"{app_path}/assets/toggle_on.png"))
+    toggleOff = ImageTk.PhotoImage(Image.open(f"{app_path}/assets/toggle_off.png"))
+    
     # A. Output Test Image
     outputTestImageLabel = Label(outputFrame, text = "Test Image", font = ("Montserrat", int(FONT20 * 0.9), "bold"), fg="black", bg="#D9D9D9", anchor = W)
-    outputTestImageLabel.place(relx = 0.07, rely = 0.07)
+    outputTestImageLabel.place(relx = 0.07, rely = 0.04)
 
     global outputTestImageCanvas
     outputTestImageCanvas = Canvas(outputFrame, width = IMG_SIZE, height = IMG_SIZE, background = "#B8B8B8", highlightthickness = 0)
-    outputTestImageCanvas.place(relx = 0.07, rely = 0.15)
+    outputTestImageCanvas.place(relx = 0.07, rely = 0.12)
+
+    global toggleOriginalImageBtn
+    toggleOriginalImageBtn = Button(outputFrame, background = "#D9D9D9", highlightthickness = 0, border = 0, image = toggleOn, 
+                                    cursor = "hand2", command = toggleShowOriginalImage)
+    toggleOriginalImageBtn.place(relx = 0.07, rely = 0.66)
+
+    toggleOriginalImageLabel = Label(outputFrame, text = "Toggle Original/Grayscale Image", font = ("Montserrat", int(FONT16 * 0.72), "bold"), bg = "#D9D9D9", 
+                                    fg = "black", anchor = NW)
+    toggleOriginalImageLabel.place(relx = 0.14, rely = 0.655)
 
     # B. Output Closest Result
     outputClosestResultLabel = Label(outputFrame, text = "Closest Result", font = ("Montserrat", int(FONT20 * 0.9), "bold"), fg="black", bg="#D9D9D9", anchor = W)
-    outputClosestResultLabel.place(relx = 0.52, rely = 0.07)
+    outputClosestResultLabel.place(relx = 0.52, rely = 0.04)
 
     global outputClosestResultCanvas
     outputClosestResultCanvas = Canvas(outputFrame, width = IMG_SIZE, height = IMG_SIZE, background = "#B8B8B8", highlightthickness = 0)
-    outputClosestResultCanvas.place(relx = 0.52, rely = 0.15)
+    outputClosestResultCanvas.place(relx = 0.52, rely = 0.12)
+
+    global toggleClosestImageBtn
+    toggleClosestImageBtn = Button(outputFrame, background = "#D9D9D9", highlightthickness = 0, border = 0, image = toggleOn, cursor="hand2", command = toggleShowClosestImage)
+    toggleClosestImageBtn.place(relx = 0.52, rely = 0.66)
+
+    toggleClosestImageLabel = Label(outputFrame, text = "Toggle Closest Image/Reconstructed Image", font = ("Montserrat", int(FONT16 * 0.72), "bold"), bg = "#D9D9D9", 
+                                    fg = "black", anchor = NW)
+    toggleClosestImageLabel.place(relx = 0.59, rely = 0.655)
+
 
     # C. Result Summary
     resultSummaryFrame = Frame(outputFrame, bg = "#07111F")

@@ -45,6 +45,15 @@ def transformMtoA(matrix):
 
     return array.astype(int)
 
+def transformAtoM(array, size):
+    # I.S. Array adalah vektor gambar
+    # F.S. Mengembalikan matriks gambar
+    matrix = []
+    array = array.astype(int)
+    for i in range(size):
+        matrix.append(array[i * size: (i+1) * size])
+    return np.array(matrix)
+
 def collect_image(size, path = "./dataset"):
     # I.S. path adalah path folder yang berisi gambar
     # F.S. Mengembalikan array yang berisi vektor gambar yang sudah di resize
@@ -52,32 +61,55 @@ def collect_image(size, path = "./dataset"):
     # OUTPUT ARRAY = N^2 X M, dimana N adalah ukuran gambar, dan M adalah jumlah gambar
 
     # Try Glob if we also want to store the address
-    # Perbaruin biar bisa buka folder dalam folder
+    # Perbaruin biat bisa buka folder dalam folder
     matrix = []
     matrix_name = []
-    file_type = [".jpg", ".gif", ".jpeg", ".png"]
-    path = os.path.abspath(path)
-    for folder in os.listdir(path):
-        if (os.path.splitext(folder)[1] not in file_type) :
-            folder_path = os.path.join(path, folder)
-            for file in os.listdir(folder_path):  
-                if os.path.splitext(file)[1] in file_type:
-                    file_path = folder_path + "/" + file
-                    img = cv.imread(file_path, cv.IMREAD_GRAYSCALE)
-                    img = SquareCropImageCV(img)
-                    img = cv.resize(img, (size,size))
-                    img = transformMtoA(img)
-                    matrix.append(img)
-                    matrix_name.append(file_path)
-        else:
-            file_path = path + "/" + folder
-            img = cv.imread(file_path, cv.IMREAD_GRAYSCALE)
-            img = SquareCropImageCV(img)
-            img = cv.resize(img, (size,size))
-            img = transformMtoA(img)
-            matrix.append(img)
-            matrix_name.append(file_path)   
+    file_type=[".jpg", ".gif", ".jpeg", ".png"]
+    for root, directories, files in os.walk(path):
+        for name in files:
+            file = os.path.join(root,name)
+            if os.path.splitext(name)[1] in file_type:
+                img = cv.imread(file, cv.IMREAD_GRAYSCALE)
+                img = SquareCropImageCV(img)
+                img = cv.resize(img, (size,size))
+                img = transformMtoA(img)
+                matrix.append(img)
+                matrix_name.append(file)
     return np.array(matrix), matrix_name
+
+# def collect_image(size, path = "./dataset"):
+#     # I.S. path adalah path folder yang berisi gambar
+#     # F.S. Mengembalikan array yang berisi vektor gambar yang sudah di resize
+
+#     # OUTPUT ARRAY = N^2 X M, dimana N adalah ukuran gambar, dan M adalah jumlah gambar
+
+#     # Try Glob if we also want to store the address
+#     # Perbaruin biar bisa buka folder dalam folder
+#     matrix = []
+#     matrix_name = []
+#     file_type = [".jpg", ".gif", ".jpeg", ".png"]
+#     path = os.path.abspath(path)
+#     for folder in os.listdir(path):
+#         if (os.path.splitext(folder)[1] not in file_type) :
+#             folder_path = os.path.join(path, folder)
+#             for file in os.listdir(folder_path):  
+#                 if os.path.splitext(file)[1] in file_type:
+#                     file_path = folder_path + "/" + file
+#                     img = cv.imread(file_path, cv.IMREAD_GRAYSCALE)
+#                     img = SquareCropImageCV(img)
+#                     img = cv.resize(img, (size,size))
+#                     img = transformMtoA(img)
+#                     matrix.append(img)
+#                     matrix_name.append(file_path)
+#         else:
+#             file_path = path + "/" + folder
+#             img = cv.imread(file_path, cv.IMREAD_GRAYSCALE)
+#             img = SquareCropImageCV(img)
+#             img = cv.resize(img, (size,size))
+#             img = transformMtoA(img)
+#             matrix.append(img)
+#             matrix_name.append(file_path)   
+#     return np.array(matrix), matrix_name
 
 def get_image(size, image_path):
     # I.S. image_path adalah path image
@@ -85,6 +117,7 @@ def get_image(size, image_path):
     file_type=[".jpg", ".gif", ".jpeg", ".png"]
     if os.path.splitext(image_path)[1] in file_type:
         img = cv.imread(image_path, cv.IMREAD_GRAYSCALE)
+        img = SquareCropImageCV(img)
         img = cv.resize(img, (size,size))
         img = transformMtoA(img)
         return img
