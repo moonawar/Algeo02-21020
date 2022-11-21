@@ -1,13 +1,11 @@
-from euclidean_distance import getEigenface, displayIMG, arrayMeanInt, calculateOmegaVector, findMinDistance, euclidean_distance
-
-from image_resize import collect_image, transformMtoA, collect_image2
+from euclidean_distance import findMinDistance
+from face_recog import GetDatasetOmega, GetTestImageOmega
+from image_handler import collect_image, transformMtoA
 import numpy as np
 import cv2 as cv
-from matplotlib import pyplot as plt
-
 
 # Main Process
-def main_process()
+def main_process():
     #Get img
     img_array, img_name = collect_image( 256,"./dataset")
 
@@ -17,9 +15,6 @@ def main_process()
     #subtract all img_array
     for i in range(len(img_array)):
         img_array[i] = np.subtract(img_array[i], mean)
-
-        
-        
         
     #Find eigen of  AT A
     transposed = np.transpose(img_array)
@@ -37,7 +32,7 @@ def main_process()
     #Get omega matrix
     omega = []
     for i in range(len(ori_img)):
-        temp = calculateOmegaVector(face, ori_img[i], mean)
+        temp = GetDatasetOmega(face, ori_img[i], mean)
         omega.append(temp)
     print(omega)
     #get test image
@@ -45,12 +40,10 @@ def main_process()
     test_img = cv.resize(test_img, (256,256))
     test_img = transformMtoA(test_img)
 
-    test_omega = calculateOmegaVector(face, test_img, mean)
+    test_omega = GetTestImageOmega(face, test_img, mean)
 
 
     x = findMinDistance(omega, test_omega)
     return x
-
-
 
 print("Done")
