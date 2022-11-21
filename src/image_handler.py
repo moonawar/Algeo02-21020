@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 # % BAGIAN INI ADALAH HANDLER IMAGE YANG DIGUNAKAN DALAM GUI (TIDAK DIGUNAKAN DALAM ALGORITMA UTAMA) %
-def SquareCropImage(img):
+def SquareCropImageTk(img):
 # I.S. Image adalah class Image dari library PIL
 # F.S. Mengembalikan image yang sudah di crop di tengah
 
@@ -23,8 +23,18 @@ def ResizeImage(img, size):
 # Gunakan fungsi ini untuk resize image di UI, bukan di algoritma karena class yang dipakai berbeda
     return img.resize((size, size), Image.Resampling.LANCZOS)
 
-
 # % BAGIAN INI ADALAH HANDLER IMAGE YANG DIGUNAKAN DALAM ALGORITMA %
+def SquareCropImageCV(img):
+    # I.S. Image adalah matriks persegi
+    # F.S. Mengembalikan image yang sudah di crop di tengah
+    w, h = img.shape
+    if w > h:
+        img = img[(w-h)//2:(w-h)//2+h, :]
+    elif h > w:
+        img = img[:, (h-w)//2:(h-w)//2+w]
+    return img
+
+
 def transformMtoA(matrix):
     #I.S. Matrix adalah matriks persegi
     array = np.array([])
@@ -54,6 +64,7 @@ def collect_image(size, path = "./dataset"):
                 if os.path.splitext(file)[1] in file_type:
                     file_path = folder_path + "/" + file
                     img = cv.imread(file_path, cv.IMREAD_GRAYSCALE)
+                    img = SquareCropImageCV(img)
                     img = cv.resize(img, (size,size))
                     img = transformMtoA(img)
                     matrix.append(img)
@@ -61,6 +72,7 @@ def collect_image(size, path = "./dataset"):
         else:
             file_path = path + "/" + folder
             img = cv.imread(file_path, cv.IMREAD_GRAYSCALE)
+            img = SquareCropImageCV(img)
             img = cv.resize(img, (size,size))
             img = transformMtoA(img)
             matrix.append(img)

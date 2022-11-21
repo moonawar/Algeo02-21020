@@ -62,23 +62,30 @@ def FaceRecognition(dataset_path, test_path):
     # I.S. dataset_path adalah path dari dataset yang berisi gambar-gambar wajah
     #      test_path adalah path dari gambar wajah yang akan diidentifikasi
     # F.S. akan direturn path wajah yang terdeteksi dari gambar test_path
+    import app
 
+    app.updateSummary("Loading dataset...")
     # Load dataset ----------------------------------------------------
     datasetImageArr, datasetImageName = ih.collect_image(256, dataset_path)
     testImage = ih.get_image(256, test_path)
     # -----------------------------------------------------------------
 
+    app.updateSummary("Extracting dataset...")
     # Ekstraksi dataset -----------------------------------------------
     eigen_faces, image_mean, image_diff = ExtractDataset(datasetImageArr)
     # -----------------------------------------------------------------
 
     # Cari omega dari dataset dan image test --------------------------
+    app.updateSummary("Get dataset weights...")
     datasetWeights = GetDatasetOmega(eigen_faces, image_diff)
+
+    app.updateSummary("Get test image weights...")
     testImageWeights = GetTestImageOmega(eigen_faces, testImage, image_mean)
     # -----------------------------------------------------------------
 
     # Cari jarak euclidean dari image test ke setiap image dataset ----
     # Ambil index dari image dataset dengan jarak euclidean terkecil
+    app.updateSummary("Looking for the closest Images...")
     image_index = ed.findMinDistance(datasetWeights, testImageWeights)
     # -----------------------------------------------------------------
 
@@ -88,10 +95,10 @@ def FaceRecognition(dataset_path, test_path):
         return -1
     else:
         closest_image = ""
-        print("Closest image: " + datasetImageName[image_index])
         for c in datasetImageName[image_index]:
             if c == "/":
                 closest_image = ""
             else:
                 closest_image += c
+        app.updateSummary("The closest image from the dataset is: " + closest_image)
         return datasetImageName[image_index]

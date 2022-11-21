@@ -4,6 +4,7 @@ from tkinter import filedialog
 from image_handler import *
 import camerainput as cIn
 import time as t
+import os
 
 # --% Global Variables %-- #
 inputImage_path = None
@@ -16,6 +17,8 @@ TEST_INPUT = NO_FILE_CHOSEN
 
 SUMMARY = ""
 STARTING_TIME = None
+
+app_path = os.path.dirname(os.path.abspath(__file__))
 
 # --% Functions %-- #
 def selectDataset():
@@ -58,7 +61,7 @@ def selectTestImage():
 
 def updateInputImage():
     testInputImage = Image.open(inputImage_path)
-    testInputImage = SquareCropImage(testInputImage)
+    testInputImage = SquareCropImageTk(testInputImage)
     testInputImage = ResizeImage(testInputImage, IMG_SIZE)
 
     global f_testInputImage 
@@ -69,7 +72,7 @@ def updateInputImage():
 
 def updateClosestResultImage():
     closestResultImage = Image.open(closestResult_path)
-    closestResultImage = SquareCropImage(closestResultImage)
+    closestResultImage = SquareCropImageTk(closestResultImage)
     closestResultImage = ResizeImage(closestResultImage, IMG_SIZE)
 
     global f_closestResultImage 
@@ -95,7 +98,7 @@ def delWarning():
 
 def updateExecTime():
     global STARTING_TIME
-    global resultExecTimeOutput
+    global resultExecTimeValue
 
     if STARTING_TIME != None:
         execTime = t.time() - STARTING_TIME
@@ -127,132 +130,148 @@ def openCamera():
     global root
     cIn.popUpCamera(root)
 
-root = Tk()
 
-# --% Getting Resolution Right %-- #
-RESOLUTION_FACTOR = root.winfo_screenwidth() / 1440
-WINDOW_WIDTH = min(int(1260 * RESOLUTION_FACTOR), 1440)
-WINDOW_HEIGHT = min(int(675 * RESOLUTION_FACTOR), 880)
-IMG_SIZE = min(int(400 * RESOLUTION_FACTOR), 400)
+def START_APP():
+    global root
+    root = Tk()
 
-FONT28 = min(int(28 * RESOLUTION_FACTOR), 28)
-FONT20 = min(int(20 * RESOLUTION_FACTOR), 20)
-FONT16 = min(int(16 * RESOLUTION_FACTOR), 16)
+    # --% Getting Resolution Right %-- #
+    global RESOLUTION_FACTOR
+    RESOLUTION_FACTOR = root.winfo_screenwidth() / 1440
 
-# --% Window Configuration %-- #
-root.title("Face Recognition App : Ei")
-root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
-root.resizable(False, False)
+    WINDOW_WIDTH = min(int(1260 * RESOLUTION_FACTOR), 1440)
+    WINDOW_HEIGHT = min(int(675 * RESOLUTION_FACTOR), 880)
 
-# --% Title Frame %-- #
-titleFrame = Frame(root, bg = "#07111F")
-titleFrame.place(relheight = 0.12, relwidth = 1)
+    global IMG_SIZE
+    IMG_SIZE = min(int(400 * RESOLUTION_FACTOR), 400)
 
-# . Title Label
-titleLabel = Label(titleFrame, text = "Face Recognition", font = ("Montserrat", int(FONT28), "bold"), bg = "#07111F", fg = "#E2BD45", anchor = W)
-titleLabel.place(relx = 0.04, rely = 0.1, relheight = 0.8)
+    FONT28 = min(int(28 * RESOLUTION_FACTOR), 28)
+    FONT20 = min(int(20 * RESOLUTION_FACTOR), 20)
+    FONT16 = min(int(16 * RESOLUTION_FACTOR), 16)
 
-# . Icon
-iconCanvas = Canvas(titleFrame, width = 65, height = 65, background = "#07111F" , highlightthickness = 0)
-iconCanvas.place(relx = 0.92, rely = 0.18)
-icon = ImageTk.PhotoImage(Image.open("assets/icon.png").resize((65, 65)))
-iconCanvas.create_image(0, 0, anchor = NW, image = icon)
+    # --% Window Configuration %-- #
+    root.title("Face Recognition App : Ei")
+    root.geometry(f"{WINDOW_WIDTH}x{WINDOW_HEIGHT}")
+    root.resizable(False, False)
 
-# --% Input Frame %-- #
-chooseFileImg = ImageTk.PhotoImage(Image.open("assets/choose_file_btn.png"))
+    # --% Title Frame %-- #
+    titleFrame = Frame(root, bg = "#07111F")
+    titleFrame.place(relheight = 0.12, relwidth = 1)
 
-# Frame tempat untuk memasukkan input gambar, baik itu dari dataset, maupun untuk gambar uji
-inputCanvas = Canvas(root, background = "#0D356A", highlightthickness = 0)
-inputCanvas.place(relheight = 0.88, relwidth = 0.3, rely = 0.12)
-inputCanvasBG = ImageTk.PhotoImage(Image.open("assets/input_canvas_bg.png").resize((int(WINDOW_WIDTH * 0.3), int(WINDOW_HEIGHT * 0.88))))
-inputCanvas.create_image(0, 0, anchor = NW, image = inputCanvasBG)
+    # . Title Label
+    titleLabel = Label(titleFrame, text = "Face Recognition", font = ("Montserrat", int(FONT28), "bold"), bg = "#07111F", fg = "#E2BD45", anchor = W)
+    titleLabel.place(relx = 0.04, rely = 0.1, relheight = 0.8)
 
-# A. Insert Dataset
-# . Input Dataset Label
-inputDatasetLabel = Label(inputCanvas, text = "Insert Your Dataset", font = ("Montserrat", int(FONT20 * 0.9), "bold"), bg = "#0D356A", fg = "white", anchor = W)
-inputDatasetLabel.place(relx = 0.11, rely = 0.075)
+    # . Icon
+    iconCanvas = Canvas(titleFrame, width = 65, height = 65, background = "#07111F" , highlightthickness = 0)
+    iconCanvas.place(relx = 0.92, rely = 0.18)
+    icon = ImageTk.PhotoImage(Image.open(f"{app_path}/assets/icon.png").resize((65, 65)))
+    iconCanvas.create_image(0, 0, anchor = NW, image = icon)
 
-# . Input Dataset Button
-inputDatasetBtn = Button(inputCanvas, image = chooseFileImg, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A"
-                        , command = selectDataset)
-inputDatasetBtn.place(relx = 0.11, rely = 0.15, relwidth = 0.4, relheight = 0.05)
+    # --% Input Frame %-- #
+    chooseFileImg = ImageTk.PhotoImage(Image.open(f"{app_path}/assets/choose_file_btn.png"))
 
-# . Chosen Dataset Label
-chosenDatasetLabel = Label(inputCanvas, text = DATASET_INPUT, font = ("Montserrat", int(FONT16 * 0.9)), bg = "#0D356A", fg = "white", anchor = NW, wraplength = 170, justify = LEFT)
-chosenDatasetLabel.place(relx = 0.52, rely = 0.15)
+    # Frame tempat untuk memasukkan input gambar, baik itu dari dataset, maupun untuk gambar uji
+    inputCanvas = Canvas(root, background = "#0D356A", highlightthickness = 0)
+    inputCanvas.place(relheight = 0.88, relwidth = 0.3, rely = 0.12)
+    inputCanvasBG = ImageTk.PhotoImage(Image.open(f"{app_path}/assets/input_canvas_bg.png").resize((int(WINDOW_WIDTH * 0.3), int(WINDOW_HEIGHT * 0.88))))
+    inputCanvas.create_image(0, 0, anchor = NW, image = inputCanvasBG)
 
-# B. Insert Test Image
-# . Input Test Image Label
-inputTestImageLabel = Label(inputCanvas, text = "Insert Your Test Image", font = ("Montserrat", int(FONT20 * 0.9), "bold"), bg = "#0D356A", fg = "white", anchor = W)
-inputTestImageLabel.place(relx = 0.11, rely = 0.27)
+    # A. Insert Dataset
+    # . Input Dataset Label
+    inputDatasetLabel = Label(inputCanvas, text = "Insert Your Dataset", font = ("Montserrat", int(FONT20 * 0.9), "bold"), bg = "#0D356A", fg = "white", anchor = W)
+    inputDatasetLabel.place(relx = 0.11, rely = 0.075)
 
-# . Input Dataset Button
-inputTestImageBtn = Button(inputCanvas, image = chooseFileImg, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A",
-                           command = selectTestImage)
-inputTestImageBtn.place(relx = 0.11, rely = 0.35, relwidth = 0.4, relheight = 0.05)
+    # . Input Dataset Button
+    inputDatasetBtn = Button(inputCanvas, image = chooseFileImg, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A"
+                            , command = selectDataset)
+    inputDatasetBtn.place(relx = 0.11, rely = 0.15, relwidth = 0.4, relheight = 0.05)
 
-# . Input Test Image Button
-chosenTestImageLabel = Label(inputCanvas, text = TEST_INPUT, font = ("Montserrat", int(FONT16 * 0.9)), bg = "#0D356A", fg = "white", anchor = NW, wraplength = 170, justify = LEFT)
-chosenTestImageLabel.place(relx = 0.52, rely = 0.35, relheight=0.07)
+    # . Chosen Dataset Label
+    global chosenDatasetLabel
 
-# . Use Camera Label
-useCameraLabel = Label(inputCanvas, text = "Use camera instead?", font = ("Montserrat", int(FONT16 * 0.8), "underline"), bg = "#0D356A", fg = "white", anchor = W)
-useCameraLabel.place(relx = 0.11, rely = 0.42)
+    chosenDatasetLabel = Label(inputCanvas, text = DATASET_INPUT, font = ("Montserrat", int(FONT16 * 0.9)), bg = "#0D356A", fg = "white", anchor = NW, wraplength = 170, justify = LEFT)
+    chosenDatasetLabel.place(relx = 0.52, rely = 0.15)
 
-# . Use Camera Button
-useCameraIcon = ImageTk.PhotoImage(Image.open("assets/cam_btn.png"))
-useCameraBtn = Button(inputCanvas, image = useCameraIcon, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A",
-                      command = openCamera)
-useCameraBtn.place(relx = 0.55, rely = 0.425)
+    # B. Insert Test Image
+    # . Input Test Image Label
+    inputTestImageLabel = Label(inputCanvas, text = "Insert Your Test Image", font = ("Montserrat", int(FONT20 * 0.9), "bold"), bg = "#0D356A", fg = "white", anchor = W)
+    inputTestImageLabel.place(relx = 0.11, rely = 0.27)
 
-# C. Run the Test 
-# . Run the Test Label
-runTestIcon = ImageTk.PhotoImage(Image.open("assets/run_btn.png"))
-runTestLabel = Label(inputCanvas, text = "Run the test", font = ("Montserrat", int(FONT20 * 0.9), "bold"), bg = "#0D356A", fg = "white", anchor = W)
-runTestLabel.place(relx = 0.11, rely = 0.55)
+    # . Input Dataset Button
+    inputTestImageBtn = Button(inputCanvas, image = chooseFileImg, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A",
+                            command = selectTestImage)
+    inputTestImageBtn.place(relx = 0.11, rely = 0.35, relwidth = 0.4, relheight = 0.05)
 
-# . Run the Test Button
-runTestBtn = Button(inputCanvas, image = runTestIcon, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A",
-                    command = RunFaceRecognition)
-runTestBtn.place(relx = 0.52, rely = 0.55)
+    # . Input Test Image Button
+    global chosenTestImageLabel
 
-# . Warning Label
-warningLabel = Label(inputCanvas, font = ("Montserrat", int(FONT16 * 0.8)), bg = "#0D356A", fg = "white", anchor = W)
-warningLabel.place(relx = 0.11, rely = 0.65)
+    chosenTestImageLabel = Label(inputCanvas, text = TEST_INPUT, font = ("Montserrat", int(FONT16 * 0.9)), bg = "#0D356A", fg = "white", anchor = NW, wraplength = 170, justify = LEFT)
+    chosenTestImageLabel.place(relx = 0.52, rely = 0.35, relheight=0.07)
 
-# --% Output Frame %-- #
-outputFrame = Frame(root, bg = "#D9D9D9")
-outputFrame.place(relheight = 0.88, relwidth = 0.7, relx = 0.3, rely = 0.12)
+    # . Use Camera Label
+    useCameraLabel = Label(inputCanvas, text = "Use camera instead?", font = ("Montserrat", int(FONT16 * 0.8), "underline"), bg = "#0D356A", fg = "white", anchor = W)
+    useCameraLabel.place(relx = 0.11, rely = 0.42)
 
-# A. Output Test Image
-outputTestImageLabel = Label(outputFrame, text = "Test Image", font = ("Montserrat", int(FONT20 * 0.9), "bold"), fg="black", bg="#D9D9D9", anchor = W)
-outputTestImageLabel.place(relx = 0.07, rely = 0.07)
+    # . Use Camera Button
+    useCameraIcon = ImageTk.PhotoImage(Image.open(f"{app_path}/assets/cam_btn.png"))
+    useCameraBtn = Button(inputCanvas, image = useCameraIcon, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A",
+                        command = openCamera)
+    useCameraBtn.place(relx = 0.55, rely = 0.425)
 
-outputTestImageCanvas = Canvas(outputFrame, width = IMG_SIZE, height = IMG_SIZE, background = "#B8B8B8", highlightthickness = 0)
-outputTestImageCanvas.place(relx = 0.07, rely = 0.15)
+    # C. Run the Test 
+    # . Run the Test Label
+    runTestIcon = ImageTk.PhotoImage(Image.open(f"{app_path}/assets/run_btn.png"))
+    runTestLabel = Label(inputCanvas, text = "Run the test", font = ("Montserrat", int(FONT20 * 0.9), "bold"), bg = "#0D356A", fg = "white", anchor = W)
+    runTestLabel.place(relx = 0.11, rely = 0.55)
 
-# B. Output Closest Result
-outputClosestResultLabel = Label(outputFrame, text = "Closest Result", font = ("Montserrat", int(FONT20 * 0.9), "bold"), fg="black", bg="#D9D9D9", anchor = W)
-outputClosestResultLabel.place(relx = 0.52, rely = 0.07)
+    # . Run the Test Button
+    runTestBtn = Button(inputCanvas, image = runTestIcon, borderwidth = 0, highlightthickness = 0, cursor = "hand2", bg = "#0D356A", activebackground="#0D356A",
+                        command = RunFaceRecognition)
+    runTestBtn.place(relx = 0.52, rely = 0.55)
 
-outputClosestResultCanvas = Canvas(outputFrame, width = IMG_SIZE, height = IMG_SIZE, background = "#B8B8B8", highlightthickness = 0)
-outputClosestResultCanvas.place(relx = 0.52, rely = 0.15)
+    # . Warning Label
+    global warningLabel
+    warningLabel = Label(inputCanvas, font = ("Montserrat", int(FONT16 * 0.8)), bg = "#0D356A", fg = "white", anchor = W)
+    warningLabel.place(relx = 0.11, rely = 0.65)
 
-# C. Result Summary
-resultSummaryFrame = Frame(outputFrame, bg = "#07111F")
-resultSummaryFrame.place(rely = 0.75, relheight = 0.25, relwidth = 1)
+    # --% Output Frame %-- #
+    outputFrame = Frame(root, bg = "#D9D9D9")
+    outputFrame.place(relheight = 0.88, relwidth = 0.7, relx = 0.3, rely = 0.12)
 
-resultSummaryLabel = Label(resultSummaryFrame, text = "Results Summary", font = ("Montserrat", int(FONT16 * 0.9), "bold"), fg="white", bg="#07111F", anchor = W)
-resultSummaryLabel.place(relx = 0.07, rely = 0.2)
+    # A. Output Test Image
+    outputTestImageLabel = Label(outputFrame, text = "Test Image", font = ("Montserrat", int(FONT20 * 0.9), "bold"), fg="black", bg="#D9D9D9", anchor = W)
+    outputTestImageLabel.place(relx = 0.07, rely = 0.07)
 
-resultExecTimeLabel = Label(resultSummaryFrame, text = "Execution Time : ", font = ("Montserrat", int(FONT16 * 0.8)), fg="white", bg="#07111F", anchor = W)
-resultExecTimeLabel.place(relx = 0.07, rely = 0.37)
+    global outputTestImageCanvas
+    outputTestImageCanvas = Canvas(outputFrame, width = IMG_SIZE, height = IMG_SIZE, background = "#B8B8B8", highlightthickness = 0)
+    outputTestImageCanvas.place(relx = 0.07, rely = 0.15)
 
-resultExecTimeValue = Label(resultSummaryFrame, text = "00.00", font = ("Montserrat", int(FONT16 * 0.8)), fg="#E2BD45", bg="#07111F", anchor = W)
-resultExecTimeValue.place(relx = 0.25, rely = 0.37)
+    # B. Output Closest Result
+    outputClosestResultLabel = Label(outputFrame, text = "Closest Result", font = ("Montserrat", int(FONT20 * 0.9), "bold"), fg="black", bg="#D9D9D9", anchor = W)
+    outputClosestResultLabel.place(relx = 0.52, rely = 0.07)
 
-resultSummaryOutput = Label(resultSummaryFrame, text = SUMMARY, 
-                            font = ("Montserrat", int(FONT16 * 0.8)), fg="white", bg="#07111F", anchor = W)
-resultSummaryOutput.place(relx = 0.07, rely = 0.6)
+    global outputClosestResultCanvas
+    outputClosestResultCanvas = Canvas(outputFrame, width = IMG_SIZE, height = IMG_SIZE, background = "#B8B8B8", highlightthickness = 0)
+    outputClosestResultCanvas.place(relx = 0.52, rely = 0.15)
 
-root.mainloop()
+    # C. Result Summary
+    resultSummaryFrame = Frame(outputFrame, bg = "#07111F")
+    resultSummaryFrame.place(rely = 0.75, relheight = 0.25, relwidth = 1)
+
+    resultSummaryLabel = Label(resultSummaryFrame, text = "Results Summary", font = ("Montserrat", int(FONT16 * 0.9), "bold"), fg="white", bg="#07111F", anchor = W)
+    resultSummaryLabel.place(relx = 0.07, rely = 0.2)
+
+    resultExecTimeLabel = Label(resultSummaryFrame, text = "Execution Time : ", font = ("Montserrat", int(FONT16 * 0.8)), fg="white", bg="#07111F", anchor = W)
+    resultExecTimeLabel.place(relx = 0.07, rely = 0.37)
+
+    global resultExecTimeValue
+    resultExecTimeValue = Label(resultSummaryFrame, text = "00.00", font = ("Montserrat", int(FONT16 * 0.8)), fg="#E2BD45", bg="#07111F", anchor = W)
+    resultExecTimeValue.place(relx = 0.25, rely = 0.37)
+
+    global resultSummaryOutput
+    resultSummaryOutput = Label(resultSummaryFrame, text = SUMMARY, 
+                                font = ("Montserrat", int(FONT16 * 0.8)), fg="white", bg="#07111F", anchor = W)
+    resultSummaryOutput.place(relx = 0.07, rely = 0.6)
+
+    root.mainloop()
