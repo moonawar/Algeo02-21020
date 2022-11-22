@@ -10,6 +10,7 @@
 - numpy v1.23.4   | Dalam melakukan operasi array dan matrix sederhana
 - Pillow v9.3.0   | Dalam Image Processing
 - OpenCV v4.6.0   | Dalam Image Processing and Konversi
+- matplotlib v3.6 | Dalam testing algoritma
 - pyhton time     | Dalam Tracking waktu eksekusi
 - python os       | Dalam pembacaan dan penulisan file ataupun folder
 - python math     | Operasi matematika sederhana (square root)
@@ -36,7 +37,7 @@ Jika belum maka install terlebih dahulu [disini](https://www.python.org/)
   ```
  2. Install semua library yang diperlukan dalam aplikasi dengan command berikut:
   ```
-    pip install opencv-python PILLOW tk numpy
+    pip install opencv-python PILLOW tk numpy matplotlib
   ``` 
  4. Clone repository ini ke local dengan menjalankan kode berikut di terminal
   ```github
