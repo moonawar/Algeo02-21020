@@ -5,9 +5,9 @@ import numpy as np
 import cv2 as cv
 
 # Main Process
-def main_process():
+def test():
     #Get img
-    img_array, img_name = collect_image( 256,"./dataset")
+    img_array, img_name = collect_image( 256,"../test/dataset")
 
     ori_img = img_array
     mean = img_array.mean(axis=0)
@@ -36,7 +36,7 @@ def main_process():
         omega.append(temp)
     print(omega)
     #get test image
-    test_img = cv.imread("./test/test.jpg", 0)
+    test_img = cv.imread("../test/test images/Tom Holland6_4843.jpg", 0)
     test_img = cv.resize(test_img, (256,256))
     test_img = transformMtoA(test_img)
 
@@ -45,4 +45,5 @@ def main_process():
     x = findMinDistance(omega, test_omega)
     return x
 
+main_process()
 print("Done")

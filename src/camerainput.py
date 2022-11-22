@@ -71,7 +71,9 @@ def popUpCamera(root):
    cap = cv2.VideoCapture(0)
 
    # Set the size of the window based on cam res
-   width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+   MIN_WIDTH = 900
+   
+   width = max(MIN_WIDTH, int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)))
    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
    win.geometry(f"{width}x{height + 80}")
@@ -93,17 +95,17 @@ def popUpCamera(root):
    global toggleBtn
    toggleBtn = Button(win, image = toggleOnImg, background="#07111F", borderwidth = 0, highlightthickness = 0, activebackground="#07111F", command = changeMode,
                       cursor="hand2")
-   toggleBtn.place(relx = 0.02, rely = 0.94 , anchor = NW)
+   toggleBtn.place(relx = 0.025, rely = 0.92 , anchor = NW)
 
    # . Mode Label
    global modeLabel
    modeLabel = Label(win, text = "Current Mode : Training Mode", font = ("Montserrat", 12), bg = "#07111F", fg = "#FFFFFF")
-   modeLabel.place(relx = 0.07, rely = 0.932, anchor = NW)
+   modeLabel.place(relx = 0.07, rely = 0.92, anchor = NW)
 
    # . Mode Info Label
    global modeInfoLabel
    modeInfoLabel = Label(win, text = Training_Mode_Info, font = ("Montserrat", 10), bg = "#07111F", fg = "#FFFFFF", wraplength = 0.35 * width, justify = LEFT)
-   modeInfoLabel.place(relx = 0.62, rely = 0.92, anchor = NW)
+   modeInfoLabel.place(relx = 0.62, rely = 0.9, anchor = NW)
 
    # Define function to show frame
    def show_frames():

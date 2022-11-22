@@ -67,8 +67,6 @@ def findMinDistance(dataset_omega, test_omega):
     return index
 
 def getEigenface(array_of_images, eigenVector):
-    # Cuman 1 eigenface
-    # Berdasarkan docs e eigenface = eigen_vector * mean_diff
     # yang dipake crossproduct of normalized array of images and eigenVector
     
     eigenFaces = np.matmul(np.transpose(array_of_images), np.transpose(eigenVector))
