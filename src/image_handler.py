@@ -21,8 +21,6 @@ def ResizeImage(img, size):
 # F.S. Mengembalikan image yang sudah di resize dengan ukuran size x size
 
 # Gunakan fungsi ini untuk resize image di UI, bukan di algoritma karena class yang dipakai berbeda
-    if not hasattr(Image, 'Resampling'):
-        return img.resize((size, size), Image.ANTIALIAS)
     return img.resize((size, size), Image.Resampling.LANCZOS)
 
 # % BAGIAN INI ADALAH HANDLER IMAGE YANG DIGUNAKAN DALAM ALGORITMA %
