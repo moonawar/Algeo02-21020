@@ -21,7 +21,12 @@ List fitur yang telah dibuat:
 - Input dataset dan test image melalui kamera
 
 ## Screenshots 📸
-> Later
+### Hasil Test Face Recognition terhadap Citra Wajah Keanu Eeeves
+![Hasil Face Recognition](./src/assets/screenshots/ss1.png)
+### Contoh Image Reconstruction dengan Eigenface
+![Hasil Face Reconstruction](./src/assets/screenshots/ss2.png)
+### Fitur Input melalui Kamera
+![Fitur input kamera](./src/assets/screenshots/ss3.png)
 
 ## Setup dan Menjalankan Aplikasi ⚙️
 1. Pastikan python sudah terinstall dengan benar. Gunakan command line di bawah ini untuk mengecek apakah python sudah terinstall dengan benar atau belum. 
