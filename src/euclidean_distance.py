@@ -2,6 +2,8 @@ import numpy as np
 from matplotlib import pyplot as plt
 import eigen as e
 
+INPUT_SIZE = 512
+
 def euclidean_distance(v1, v2):
     # I.S. len(v1) = len(v2), v1 dan v2 adalah array linear
     # Mengembalikan euclidean_distance dari v1 dan v2 --> (float)
@@ -65,22 +67,3 @@ def findMinDistance(dataset_omega, test_omega):
     if min > TOLERANCE_LEVEL:
         return -1
     return index
-
-def getEigenface(array_of_images, eigenVector):
-    # yang dipake crossproduct of normalized array of images and eigenVector
-    
-    eigenFaces = np.matmul(np.transpose(array_of_images), np.transpose(eigenVector))
-    eigenFaces = np.transpose(eigenFaces)
-    return eigenFaces
-
-def get_column(array_of_images, index):
-    vectors = []
-    for i in range(array_of_images.shape[0]):
-        vectors.append(array_of_images[i][0])
-    return vectors
-        
-def displayIMG(vector):
-    arr = vector
-    arr = np.reshape(arr, (256,256))
-    plt.imshow(arr, cmap="gray")
-    plt.show()

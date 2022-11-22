@@ -4,6 +4,8 @@ import image_handler as ih
 import numpy as np
 import eigen as e
 
+INPUT_SIZE = 512
+
 def ExtractDataset(dataset):
     # I.S. dataset adalah array of images yang berukuran N^2 x M, dimana N adalah ukuran gambar dan M adalah jumlah gambar
     # F.S. akan direturn 3 komponen hasil ekstraksi dataset, yaitu eigen_faces, image_mean, dan image_diff
@@ -65,7 +67,7 @@ def ReconstructImage(eigen_faces, dataset_mean, test_image_weights):
     for i in range(len(test_image_weights)):
         image = image + ( eigen_faces[i] * test_image_weights[i] )
 
-    image = ih.transformAtoM(image, 256)
+    image = ih.transformAtoM(image, INPUT_SIZE)
     return image
 
 def FaceRecognition(dataset_path, test_path):
@@ -76,8 +78,8 @@ def FaceRecognition(dataset_path, test_path):
 
     app.updateSummary("Loading dataset...")
     # Load dataset ----------------------------------------------------
-    datasetImageArr, datasetImageName = ih.collect_image(256, dataset_path)
-    testImage = ih.get_image(256, test_path)
+    datasetImageArr, datasetImageName = ih.collect_image(INPUT_SIZE, dataset_path)
+    testImage = ih.get_image(INPUT_SIZE, test_path)
     # -----------------------------------------------------------------
 
     app.updateSummary("Extracting dataset...")

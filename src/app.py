@@ -195,7 +195,7 @@ def toggleShowClosestImage():
             img = fr.ReconstructImage(eigen_faces, dataset_mean, test_image_weights)
 
             global f_closestResultImage
-            f_closestResultImage = ImageTk.PhotoImage(Image.fromarray(img).resize((IMG_SIZE, IMG_SIZE)))
+            f_closestResultImage = ImageTk.PhotoImage(Image.fromarray(np.uint8(img)).resize((IMG_SIZE, IMG_SIZE)))
 
             global outputClosestResultCanvas
             outputClosestResultCanvas.delete("all")

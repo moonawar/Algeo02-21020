@@ -21,6 +21,8 @@ def ResizeImage(img, size):
 # F.S. Mengembalikan image yang sudah di resize dengan ukuran size x size
 
 # Gunakan fungsi ini untuk resize image di UI, bukan di algoritma karena class yang dipakai berbeda
+    if not hasattr(Image, 'Resampling'):
+        return img.resize((size, size), Image.ANTIALIAS)
     return img.resize((size, size), Image.Resampling.LANCZOS)
 
 # % BAGIAN INI ADALAH HANDLER IMAGE YANG DIGUNAKAN DALAM ALGORITMA %
@@ -77,40 +79,6 @@ def collect_image(size, path = "./dataset"):
                 matrix_name.append(file)
     return np.array(matrix), matrix_name
 
-# def collect_image(size, path = "./dataset"):
-#     # I.S. path adalah path folder yang berisi gambar
-#     # F.S. Mengembalikan array yang berisi vektor gambar yang sudah di resize
-
-#     # OUTPUT ARRAY = N^2 X M, dimana N adalah ukuran gambar, dan M adalah jumlah gambar
-
-#     # Try Glob if we also want to store the address
-#     # Perbaruin biar bisa buka folder dalam folder
-#     matrix = []
-#     matrix_name = []
-#     file_type = [".jpg", ".gif", ".jpeg", ".png"]
-#     path = os.path.abspath(path)
-#     for folder in os.listdir(path):
-#         if (os.path.splitext(folder)[1] not in file_type) :
-#             folder_path = os.path.join(path, folder)
-#             for file in os.listdir(folder_path):  
-#                 if os.path.splitext(file)[1] in file_type:
-#                     file_path = folder_path + "/" + file
-#                     img = cv.imread(file_path, cv.IMREAD_GRAYSCALE)
-#                     img = SquareCropImageCV(img)
-#                     img = cv.resize(img, (size,size))
-#                     img = transformMtoA(img)
-#                     matrix.append(img)
-#                     matrix_name.append(file_path)
-#         else:
-#             file_path = path + "/" + folder
-#             img = cv.imread(file_path, cv.IMREAD_GRAYSCALE)
-#             img = SquareCropImageCV(img)
-#             img = cv.resize(img, (size,size))
-#             img = transformMtoA(img)
-#             matrix.append(img)
-#             matrix_name.append(file_path)   
-#     return np.array(matrix), matrix_name
-
 def get_image(size, image_path):
     # I.S. image_path adalah path image
     # F.S. Mengembalikan array yang berisi vektor gambar yang sudah di resize
@@ -124,8 +92,3 @@ def get_image(size, image_path):
     else:
         # This is supposedly can't be reached if input is correct
         return None
-
-# print(transformMtoA([[1,2,3],[4,5,6],[7,8,9]]))
-
-# img_array, img_name = collect_image(256, "./dataset/pins_Henry Cavil")
-# print(img_array)

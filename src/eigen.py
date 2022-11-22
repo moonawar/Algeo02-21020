@@ -49,7 +49,7 @@ def get_eigen_values(mat):
     matQ, matR = QR_decomposition(mat)
     iterationMat = np.matmul(matR, matQ)
 
-    max_iteration = 4 * mat.shape[0]
+    max_iteration = 2 * mat.shape[0]
     iteration = 0
 
     # Iterasi sampai matriks iterationMat adalah matriks segitiga atas atau 
@@ -73,7 +73,7 @@ def get_eigen_vectors(mat, eigen_values):
 
     # Metode yang digunakan adalah metode inverse power iteration
     # Referensi : https://www.youtube.com/watch?v=tYqOrvUOMFc
-    max_iteration = 4 * mat.shape[0]
+    max_iteration = 2 * mat.shape[0]
     eigen_vectors = np.array([[]])
     
     RANDOM_VECTOR = np.random.rand(mat.shape[0])
