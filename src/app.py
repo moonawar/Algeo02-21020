@@ -2,8 +2,9 @@ from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import filedialog
 from image_handler import *
+import euclidean_distance as ed
 import cv2 as cv
-import camerainput as cIn
+import camerainput as cam
 import time as t
 import os
 
@@ -35,6 +36,7 @@ def selectDataset():
     global dataset_path 
     dataset_path = filedialog.askdirectory(initialdir=f"{app_path}/../test/", title="Select Dataset")
 
+    global chosenDatasetLabel
     dataset_folder = ""
     if dataset_path != "":
         for c in dataset_path:
@@ -44,13 +46,17 @@ def selectDataset():
                 dataset_folder += c
 
         DATASET_INPUT = dataset_folder
-        global chosenDatasetLabel
         chosenDatasetLabel.config(text = DATASET_INPUT)
         updateSummary("")
         delWarning()
+    else:
+        dataset_path = None
+        DATASET_INPUT = NO_FILE_CHOSEN
+        chosenDatasetLabel.config(text = DATASET_INPUT)
 
     global outputClosestResultCanvas
     outputClosestResultCanvas.delete("all")
+    resetExecTime()
 
 def selectTestImage():
     # Select test image
@@ -76,6 +82,7 @@ def selectTestImage():
 
     global outputClosestResultCanvas
     outputClosestResultCanvas.delete("all")
+    resetExecTime()
     updateSummary("")
 
 def updateInputImage():
@@ -133,6 +140,14 @@ def updateExecTime():
     else:
         resultExecTimeValue.config(text = "0.0 seconds")
 
+def resetExecTime():
+    # Reset execution time GUI (showing execution time on the panel)
+    global STARTING_TIME
+    STARTING_TIME = None
+
+    global resultExecTimeValue
+    resultExecTimeValue.config(text = "0.0 seconds")
+
 def toggleShowOriginalImage():
     # Toggle between showing original image and inputted image
     global isShowingOriginalImage
@@ -175,6 +190,8 @@ def toggleShowClosestImage():
     if closestResult_path != None:
         if isShowingClosestImage:
             toggleClosestImageBtn.config(image = toggleOff)
+
+            global dataset_mean, eigen_faces, test_image_weights
             img = fr.ReconstructImage(eigen_faces, dataset_mean, test_image_weights)
 
             global f_closestResultImage
@@ -197,6 +214,11 @@ def RunFaceRecognition():
     global dataset_path
     global inputImage_path
     global closestResult_path
+    global eigen_faces, dataset_mean, test_image_weights
+
+    eigen_faces = None
+    dataset_mean = None
+    test_image_weights = None
 
     global STARTING_TIME
 
@@ -218,7 +240,7 @@ def RunFaceRecognition():
 # --* Open Camera *-- #
 def openCamera():
     global root
-    cIn.popUpCamera(root)
+    cam.popUpCamera(root)
 
 
 def START_APP():

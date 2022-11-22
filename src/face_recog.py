@@ -61,9 +61,9 @@ def GetTestImageOmega(eigen_faces, test_image, image_mean):
     return e.get_weights(eigen_faces, image_diff)
 
 def ReconstructImage(eigen_faces, dataset_mean, test_image_weights):
-    image = dataset_mean
+    image = 2 * dataset_mean / 2  # This simple trick is to make a copy of the array without contaminating the original array
     for i in range(len(test_image_weights)):
-        image += eigen_faces[i] * test_image_weights[i]
+        image = image + ( eigen_faces[i] * test_image_weights[i] )
 
     image = ih.transformAtoM(image, 256)
     return image

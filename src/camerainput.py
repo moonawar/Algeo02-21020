@@ -151,7 +151,7 @@ def capturePhoto():
       global training_count
       if os.path.exists(f"{app_path}/../test/dataset/camera training/") and training_count == 0:
          for file in os.listdir(f"{app_path}/../test/dataset/camera training/"):
-            os.remove(f"{app_path}/../test/camera training/dataset/{file}")
+            os.remove(f"{app_path}/../test/dataset/camera training/{file}")
          os.rmdir(f"{app_path}/../test/dataset/camera training/")
 
       if not os.path.exists(f"{app_path}/../test/dataset/camera training/"):
