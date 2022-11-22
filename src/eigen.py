@@ -84,7 +84,7 @@ def get_eigen_vectors(mat, eigen_values):
     for eigen_value in eigen_values:
         # Gunakan inverse power iteration hingga vektor eigen konvergen ke nilai yang benar
         iterationMat = np.subtract(mat, np.multiply(eigen_value, IDENTITY_MATRIX))
-        if (not np.isfinite(np.linalg.cond(iterationMat))): # check if matrix is singular
+        if (np.linalg.det(iterationMat) == 0): # check if matrix is singular
             iterationMat = np.subtract(mat, np.multiply(eigen_value + 0.0001, IDENTITY_MATRIX))
         
         iterationMat = np.linalg.inv(iterationMat)
