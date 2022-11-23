@@ -4,6 +4,8 @@ import image_handler as ih
 import numpy as np
 import eigen as e
 
+INPUT_SIZE = 512
+
 def ExtractDataset(dataset):
     # I.S. dataset adalah array of images yang berukuran N^2 x M, dimana N adalah ukuran gambar dan M adalah jumlah gambar
     # F.S. akan direturn 3 komponen hasil ekstraksi dataset, yaitu eigen_faces, image_mean, dan image_diff
@@ -38,7 +40,9 @@ def ExtractDataset(dataset):
     # Get the actual eigen vector of the covariance matrix
     eigen_faces = np.matmul(image_diff, eigen_vectors_op)
     # Normalized to get the eigen faces
-    eigen_faces = np.transpose(eigen_faces) / np.linalg.norm(eigen_faces, axis = 1)
+    for i in range(eigen_faces.shape[1]):
+        eigen_faces[:, i] = eigen_faces[:, i] / e.vector_length(eigen_faces[:, i])
+    eigen_faces = np.transpose(eigen_faces)
     # -----------------------------------------------------------------
 
     return eigen_faces, image_mean, image_diff
@@ -58,6 +62,14 @@ def GetTestImageOmega(eigen_faces, test_image, image_mean):
     image_diff = np.subtract(test_image, image_mean)
     return e.get_weights(eigen_faces, image_diff)
 
+def ReconstructImage(eigen_faces, dataset_mean, test_image_weights):
+    image = 2 * dataset_mean / 2  # This simple trick is to make a copy of the array without contaminating the original array
+    for i in range(len(test_image_weights)):
+        image = image + ( eigen_faces[i] * test_image_weights[i] )
+
+    image = ih.transformAtoM(image, INPUT_SIZE)
+    return image
+
 def FaceRecognition(dataset_path, test_path):
     # I.S. dataset_path adalah path dari dataset yang berisi gambar-gambar wajah
     #      test_path adalah path dari gambar wajah yang akan diidentifikasi
@@ -66,13 +78,15 @@ def FaceRecognition(dataset_path, test_path):
 
     app.updateSummary("Loading dataset...")
     # Load dataset ----------------------------------------------------
-    datasetImageArr, datasetImageName = ih.collect_image(256, dataset_path)
-    testImage = ih.get_image(256, test_path)
+    datasetImageArr, datasetImageName = ih.collect_image(INPUT_SIZE, dataset_path)
+    testImage = ih.get_image(INPUT_SIZE, test_path)
     # -----------------------------------------------------------------
 
     app.updateSummary("Extracting dataset...")
     # Ekstraksi dataset -----------------------------------------------
     eigen_faces, image_mean, image_diff = ExtractDataset(datasetImageArr)
+    app.eigen_faces = eigen_faces
+    app.dataset_mean = image_mean
     # -----------------------------------------------------------------
 
     # Cari omega dari dataset dan image test --------------------------
@@ -81,12 +95,14 @@ def FaceRecognition(dataset_path, test_path):
 
     app.updateSummary("Get test image weights...")
     testImageWeights = GetTestImageOmega(eigen_faces, testImage, image_mean)
+    app.test_image_weights = testImageWeights
     # -----------------------------------------------------------------
 
     # Cari jarak euclidean dari image test ke setiap image dataset ----
     # Ambil index dari image dataset dengan jarak euclidean terkecil
     app.updateSummary("Looking for the closest Images...")
     image_index = ed.findMinDistance(datasetWeights, testImageWeights)
+    app.image_index = image_index
     # -----------------------------------------------------------------
 
     # Return path dari image dataset yang terdeteksi sebagai wajah yang sama/dekat dengan image test
@@ -96,7 +112,7 @@ def FaceRecognition(dataset_path, test_path):
     else:
         closest_image = ""
         for c in datasetImageName[image_index]:
-            if c == "/":
+            if c == "/" or c == "\\":
                 closest_image = ""
             else:
                 closest_image += c

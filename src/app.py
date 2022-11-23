@@ -2,7 +2,9 @@ from tkinter import *
 from PIL import ImageTk, Image
 from tkinter import filedialog
 from image_handler import *
-import camerainput as cIn
+import euclidean_distance as ed
+import cv2 as cv
+import camerainput as cam
 import time as t
 import os
 
@@ -18,13 +20,23 @@ TEST_INPUT = NO_FILE_CHOSEN
 SUMMARY = ""
 STARTING_TIME = None
 
+eigen_faces = None
+test_image_weights = None
+dataset_mean = None
+image_index = None
+
 app_path = os.path.dirname(os.path.abspath(__file__))
+
+isShowingOriginalImage = True # Otherwise, show inputted image which is on grayscale mode
+isShowingClosestImage = True # Otherwise, show the reconstructed image
 
 # --% Functions %-- #
 def selectDataset():
+    # Select dataset foldet with images
     global dataset_path 
-    dataset_path = filedialog.askdirectory(initialdir="./", title="Select Dataset")
+    dataset_path = filedialog.askdirectory(initialdir=f"{app_path}/../test/", title="Select Dataset")
 
+    global chosenDatasetLabel
     dataset_folder = ""
     if dataset_path != "":
         for c in dataset_path:
@@ -34,13 +46,22 @@ def selectDataset():
                 dataset_folder += c
 
         DATASET_INPUT = dataset_folder
-        global chosenDatasetLabel
         chosenDatasetLabel.config(text = DATASET_INPUT)
+        updateSummary("")
         delWarning()
+    else:
+        dataset_path = None
+        DATASET_INPUT = NO_FILE_CHOSEN
+        chosenDatasetLabel.config(text = DATASET_INPUT)
+
+    global outputClosestResultCanvas
+    outputClosestResultCanvas.delete("all")
+    resetExecTime()
 
 def selectTestImage():
+    # Select test image
     global inputImage_path
-    inputImage_path = filedialog.askopenfilename(initialdir="./", title="Select Test Image", filetypes=(("image files", "*.jpg *.png"), ("all files", "*.*")))
+    inputImage_path = filedialog.askopenfilename(initialdir=f"{app_path}/../test/", title="Select Test Image", filetypes=(("image files", "*.jpg *.png *.gif *.jpeg"), ("all files", "*.*")))
 
     test_image = ""
     if inputImage_path != "":
@@ -59,7 +80,13 @@ def selectTestImage():
         updateInputImage()
         delWarning()
 
+    global outputClosestResultCanvas
+    outputClosestResultCanvas.delete("all")
+    resetExecTime()
+    updateSummary("")
+
 def updateInputImage():
+    # Update input image GUI (showing image on the panel)
     testInputImage = Image.open(inputImage_path)
     testInputImage = SquareCropImageTk(testInputImage)
     testInputImage = ResizeImage(testInputImage, IMG_SIZE)
@@ -68,9 +95,11 @@ def updateInputImage():
     f_testInputImage =  ImageTk.PhotoImage(testInputImage)
 
     global outputTestImageCanvas
+    outputTestImageCanvas.delete("all")
     outputTestImageCanvas.create_image(0, 0, anchor=NW, image=f_testInputImage)
 
 def updateClosestResultImage():
+    # Update closest result image GUI (showing image on the panel)
     closestResultImage = Image.open(closestResult_path)
     closestResultImage = SquareCropImageTk(closestResultImage)
     closestResultImage = ResizeImage(closestResultImage, IMG_SIZE)
@@ -79,9 +108,11 @@ def updateClosestResultImage():
     f_closestResultImage =  ImageTk.PhotoImage(closestResultImage)
 
     global outputClosestResultCanvas
+    outputClosestResultCanvas.delete("all")
     outputClosestResultCanvas.create_image(0, 0, anchor=NW, image=f_closestResultImage)
 
 def updateSummary(summary):
+    # Update summary GUI (showing summary on the panel)
     global SUMMARY
     SUMMARY = summary
 
@@ -89,14 +120,17 @@ def updateSummary(summary):
     resultSummaryOutput.config(text = SUMMARY)
 
 def popUpWarning(warning):
+    # Pop up warning message
     global warningLabel
     warningLabel.config(text = warning)
 
 def delWarning():
+    # Delete warning message
     global warningLabel
     warningLabel.config(text = "")
 
 def updateExecTime():
+    # Update execution time GUI (showing execution time on the panel)
     global STARTING_TIME
     global resultExecTimeValue
 
@@ -106,11 +140,85 @@ def updateExecTime():
     else:
         resultExecTimeValue.config(text = "0.0 seconds")
 
+def resetExecTime():
+    # Reset execution time GUI (showing execution time on the panel)
+    global STARTING_TIME
+    STARTING_TIME = None
+
+    global resultExecTimeValue
+    resultExecTimeValue.config(text = "0.0 seconds")
+
+def toggleShowOriginalImage():
+    # Toggle between showing original image and inputted image
+    global isShowingOriginalImage
+    global toggleOriginalImageBtn
+    global toggleOff
+    global toggleOn
+
+    if inputImage_path != None:
+        if isShowingOriginalImage:
+            toggleOriginalImageBtn.config(image = toggleOff)
+            isShowingOriginalImage = False
+            
+            img = cv.imread(inputImage_path, cv.IMREAD_GRAYSCALE)
+            img = SquareCropImageCV(img)
+            img = cv.resize(img, (IMG_SIZE, IMG_SIZE))
+
+            global f_testInputImage
+            f_testInputImage = ImageTk.PhotoImage(Image.fromarray(img))
+
+            global outputTestImageCanvas
+            outputTestImageCanvas.delete("all")
+            outputTestImageCanvas.create_image(0, 0, anchor=NW, image=f_testInputImage)
+            
+        else:
+            toggleOriginalImageBtn.config(image = toggleOn)
+            updateInputImage()
+            isShowingOriginalImage = True
+    else:
+        popUpWarning("Please select a test image.")
+
+def toggleShowClosestImage():
+    # Toggle between showing closest image and reconstructed image
+    global isShowingClosestImage
+    global toggleClosestImageBtn
+    global toggleOff
+    global toggleOn
+
+    import face_recog as fr
+
+    if closestResult_path != None:
+        if isShowingClosestImage:
+            toggleClosestImageBtn.config(image = toggleOff)
+
+            global dataset_mean, eigen_faces, test_image_weights
+            img = fr.ReconstructImage(eigen_faces, dataset_mean, test_image_weights)
+
+            global f_closestResultImage
+            f_closestResultImage = ImageTk.PhotoImage(Image.fromarray(np.uint8(img)).resize((IMG_SIZE, IMG_SIZE)))
+
+            global outputClosestResultCanvas
+            outputClosestResultCanvas.delete("all")
+            outputClosestResultCanvas.create_image(0, 0, anchor=NW, image=f_closestResultImage)
+
+            isShowingClosestImage = False
+        else:
+            toggleClosestImageBtn.config(image = toggleOn)
+            updateClosestResultImage()
+            isShowingClosestImage = True
+    else:
+        popUpWarning("Please run the face recognition first.")
 
 def RunFaceRecognition():
+    # Run face recognition
     global dataset_path
     global inputImage_path
     global closestResult_path
+    global eigen_faces, dataset_mean, test_image_weights
+
+    eigen_faces = None
+    dataset_mean = None
+    test_image_weights = None
 
     global STARTING_TIME
 
@@ -122,13 +230,17 @@ def RunFaceRecognition():
 
     STARTING_TIME = t.time()
     closestResult_path = fr.FaceRecognition(dataset_path, inputImage_path)
-    updateClosestResultImage()
-    updateExecTime()
+    if closestResult_path == -1:
+        updateSummary("No close face detected in the test image.")
+        updateExecTime()
+    else:
+        updateClosestResultImage()
+        updateExecTime()
 
 # --* Open Camera *-- #
 def openCamera():
     global root
-    cIn.popUpCamera(root)
+    cam.popUpCamera(root)
 
 
 def START_APP():
@@ -239,21 +351,44 @@ def START_APP():
     outputFrame = Frame(root, bg = "#D9D9D9")
     outputFrame.place(relheight = 0.88, relwidth = 0.7, relx = 0.3, rely = 0.12)
 
+    # . for toggle button
+    global toggleOn, toggleOff
+    toggleOn = ImageTk.PhotoImage(Image.open(f"{app_path}/assets/toggle_on.png"))
+    toggleOff = ImageTk.PhotoImage(Image.open(f"{app_path}/assets/toggle_off.png"))
+    
     # A. Output Test Image
     outputTestImageLabel = Label(outputFrame, text = "Test Image", font = ("Montserrat", int(FONT20 * 0.9), "bold"), fg="black", bg="#D9D9D9", anchor = W)
-    outputTestImageLabel.place(relx = 0.07, rely = 0.07)
+    outputTestImageLabel.place(relx = 0.07, rely = 0.04)
 
     global outputTestImageCanvas
     outputTestImageCanvas = Canvas(outputFrame, width = IMG_SIZE, height = IMG_SIZE, background = "#B8B8B8", highlightthickness = 0)
-    outputTestImageCanvas.place(relx = 0.07, rely = 0.15)
+    outputTestImageCanvas.place(relx = 0.07, rely = 0.12)
+
+    global toggleOriginalImageBtn
+    toggleOriginalImageBtn = Button(outputFrame, background = "#D9D9D9", highlightthickness = 0, border = 0, image = toggleOn, 
+                                    cursor = "hand2", command = toggleShowOriginalImage)
+    toggleOriginalImageBtn.place(relx = 0.07, rely = 0.66)
+
+    toggleOriginalImageLabel = Label(outputFrame, text = "Toggle Original/Grayscale Image", font = ("Montserrat", int(FONT16 * 0.72), "bold"), bg = "#D9D9D9", 
+                                    fg = "black", anchor = NW)
+    toggleOriginalImageLabel.place(relx = 0.14, rely = 0.655)
 
     # B. Output Closest Result
     outputClosestResultLabel = Label(outputFrame, text = "Closest Result", font = ("Montserrat", int(FONT20 * 0.9), "bold"), fg="black", bg="#D9D9D9", anchor = W)
-    outputClosestResultLabel.place(relx = 0.52, rely = 0.07)
+    outputClosestResultLabel.place(relx = 0.52, rely = 0.04)
 
     global outputClosestResultCanvas
     outputClosestResultCanvas = Canvas(outputFrame, width = IMG_SIZE, height = IMG_SIZE, background = "#B8B8B8", highlightthickness = 0)
-    outputClosestResultCanvas.place(relx = 0.52, rely = 0.15)
+    outputClosestResultCanvas.place(relx = 0.52, rely = 0.12)
+
+    global toggleClosestImageBtn
+    toggleClosestImageBtn = Button(outputFrame, background = "#D9D9D9", highlightthickness = 0, border = 0, image = toggleOn, cursor="hand2", command = toggleShowClosestImage)
+    toggleClosestImageBtn.place(relx = 0.52, rely = 0.66)
+
+    toggleClosestImageLabel = Label(outputFrame, text = "Toggle Closest Image/Reconstructed Image", font = ("Montserrat", int(FONT16 * 0.72), "bold"), bg = "#D9D9D9", 
+                                    fg = "black", anchor = NW)
+    toggleClosestImageLabel.place(relx = 0.59, rely = 0.655)
+
 
     # C. Result Summary
     resultSummaryFrame = Frame(outputFrame, bg = "#07111F")
